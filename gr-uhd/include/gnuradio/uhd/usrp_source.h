@@ -135,6 +135,7 @@ namespace gr {
        * Returns identifying information about this USRP's configuration.
        * Returns motherboard ID, name, and serial.
        * Returns daughterboard RX ID, subdev name and spec, serial, and antenna.
+       * Dictionary keys are: mboard_id, mboard_name, mboard_serial, rx_id, rx_subdev_name, rx_subdev_spec, rx_serial, rx_antenna
        * \param chan channel index 0 to N-1
        * \return RX info
        */
