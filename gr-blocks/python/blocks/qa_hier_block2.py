@@ -463,6 +463,7 @@ class test_hier_block2(gr_unittest.TestCase):
         self.test_34b_val = 0
         t1 = threading.Thread(target=thread_01, args=(hblock, self, ))
         t1.start()
+        t1.join()
         hblock.wait()
         self.assertEqual(40, self.test_34b_val)
 
