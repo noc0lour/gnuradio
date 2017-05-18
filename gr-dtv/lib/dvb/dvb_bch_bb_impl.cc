@@ -64,11 +64,14 @@ namespace gr {
             kbch = 32208;
             nbch = 32400;
             bch_code = BCH_CODE_N12;
+            lookup_table_name = "bch_n12_c1_2_lookup.bin";
             break;
           case C3_5:
             kbch = 38688;
             nbch = 38880;
             bch_code = BCH_CODE_N12;
+            lookup_table_name = "bch_n12_c3_5_lookup.bin";
+            memcpy(lookup_table_n12, bch_n12_c3_5_lookup_bin, bch_n12_c3_5_lookup_bin_len);
             break;
           case C2_3:
             kbch = 43040;
@@ -372,6 +375,7 @@ namespace gr {
       }
 
       bch_poly_build_tables();
+      //gen_lookup_table();
       set_output_multiple(nbch);
     }
 
@@ -582,7 +586,95 @@ namespace gr {
       poly_pack(polyout[0], m_poly_m_12, 180);
     }
 
-    int
+      void
+      dvb_bch_bb_impl::gen_lookup_table(void)
+      {
+          //for now only N12 code
+
+          unsigned int tablesize;
+          unsigned long* lookup;
+
+          switch (bch_code) {
+              case BCH_CODE_N8:
+                  break;
+              case BCH_CODE_N12:
+                  lookup = &lookup_table_n12[0][0][0];
+                  tablesize = sizeof(lookup_table_n12);//3 * 2 * kbch * sizeof(unsigned long int);
+                  break;
+              default:
+                  break;
+          }
+
+
+          std::ifstream infile (lookup_table_name.c_str(),std::ifstream::binary);
+
+          if(infile.good()){
+              infile.seekg (0,infile.end);
+              unsigned long size = infile.tellg();
+              infile.seekg(0);
+
+              if(size == tablesize){
+                  infile.read ((char*)lookup,size);
+                  //printf("Lookup table found :).\n");
+                  return;
+              }else{
+                  printf("BCH Lookup table: wrong size.\n");
+              }
+          }else{
+              printf("BCH Lookup table not found or wrong size, generating.\n");
+          }
+
+          memset(lookup_table_n12, 0, sizeof(lookup_table_n12));
+
+
+          switch (bch_code) {
+              case BCH_CODE_N12:
+
+                  unsigned int shift[6];
+                  unsigned char infoword[kbch];
+                  unsigned char b, temp;
+
+
+                  for(int bitpos=0; bitpos <kbch; bitpos++){
+                      printf("bitpos: %d of %d\n", bitpos+1, kbch);
+
+
+                      //Zero the shift register
+                      memset(shift, 0, sizeof(unsigned long int) * 3);
+                      memset(infoword, 0, sizeof(unsigned char) * kbch);
+                      unsigned char *in = infoword;
+
+                      infoword[bitpos] = 1;
+                      for (int j = 0; j < kbch ; j++) {
+                          temp = *in++;
+                          b = (temp ^ (shift[5] & 1));
+                          reg_6_shift(shift);
+                          if (b==1) {
+                              shift[0] ^= m_poly_n_12[0];
+                              shift[1] ^= m_poly_n_12[1];
+                              shift[2] ^= m_poly_n_12[2];
+                              shift[3] ^= m_poly_n_12[3];
+                              shift[4] ^= m_poly_n_12[4];
+                              shift[5] ^= m_poly_n_12[5];
+                          }
+                      }
+
+                      lookup_table_n12[0][bitpos][1] = ((unsigned long int)shift[0]) << 32 | shift[1];
+                      lookup_table_n12[1][bitpos][1] = ((unsigned long int)shift[2]) << 32 | shift[3];
+                      lookup_table_n12[2][bitpos][1] = ((unsigned long int)shift[4]) << 32 | shift[5];
+
+                  }
+                  break;
+          }
+          std::ofstream outfile (lookup_table_name.c_str(),std::ofstream::binary);
+          outfile.write ((const char*) lookup, tablesize);
+          outfile.close();
+      }
+
+
+
+
+      int
     dvb_bch_bb_impl::general_work (int noutput_items,
                        gr_vector_int &ninput_items,
                        gr_vector_const_void_star &input_items,
@@ -596,31 +688,126 @@ namespace gr {
 
       switch (bch_code) {
         case BCH_CODE_N12:
+
+          unsigned long int bch[4];
+
           for (int i = 0; i < noutput_items; i += nbch) {
             //Zero the shift register
-            memset(shift, 0, sizeof(unsigned int) * 6);
-            // MSB of the codeword first
-            for (int j = 0; j < (int)kbch; j++) {
+            memset(bch, 0, sizeof(unsigned long int) * 3);
+            consumed += kbch;
+            int k = 0;
+
+            const int l = kbch / 8;
+            for (int j = 0; j < l; j++) {
               temp = *in++;
               *out++ = temp;
-              consumed++;
-              b = (temp ^ (shift[5] & 1));
-              reg_6_shift(shift);
-              if (b) {
-                shift[0] ^= m_poly_n_12[0];
-                shift[1] ^= m_poly_n_12[1];
-                shift[2] ^= m_poly_n_12[2];
-                shift[3] ^= m_poly_n_12[3];
-                shift[4] ^= m_poly_n_12[4];
-                shift[5] ^= m_poly_n_12[5];
-              }
+              bch[0] ^= lookup_table_n12[0][k][temp];
+              bch[1] ^= lookup_table_n12[1][k][temp];
+              bch[2] ^= lookup_table_n12[2][k][temp];
+              k++;
+
+              temp = *in++;
+              *out++ = temp;
+              bch[0] ^= lookup_table_n12[0][k][temp];
+              bch[1] ^= lookup_table_n12[1][k][temp];
+              bch[2] ^= lookup_table_n12[2][k][temp];
+              k++;
+
+              temp = *in++;
+              *out++ = temp;
+              bch[0] ^= lookup_table_n12[0][k][temp];
+              bch[1] ^= lookup_table_n12[1][k][temp];
+              bch[2] ^= lookup_table_n12[2][k][temp];
+              k++;
+
+              temp = *in++;
+              *out++ = temp;
+              bch[0] ^= lookup_table_n12[0][k][temp];
+              bch[1] ^= lookup_table_n12[1][k][temp];
+              bch[2] ^= lookup_table_n12[2][k][temp];
+              k++;
+
+              temp = *in++;
+              *out++ = temp;
+              bch[0] ^= lookup_table_n12[0][k][temp];
+              bch[1] ^= lookup_table_n12[1][k][temp];
+              bch[2] ^= lookup_table_n12[2][k][temp];
+              k++;
+
+              temp = *in++;
+              *out++ = temp;
+              bch[0] ^= lookup_table_n12[0][k][temp];
+              bch[1] ^= lookup_table_n12[1][k][temp];
+              bch[2] ^= lookup_table_n12[2][k][temp];
+              k++;
+
+              temp = *in++;
+              *out++ = temp;
+              bch[0] ^= lookup_table_n12[0][k][temp];
+              bch[1] ^= lookup_table_n12[1][k][temp];
+              bch[2] ^= lookup_table_n12[2][k][temp];
+              k++;
+
+              temp = *in++;
+              *out++ = temp;
+              bch[0] ^= lookup_table_n12[0][k][temp];
+              bch[1] ^= lookup_table_n12[1][k][temp];
+              bch[2] ^= lookup_table_n12[2][k][temp];
+              k++;
             }
-            // Now add the parity bits to the output
-            for (int n = 0; n < 192; n++) {
-              *out++ = (shift[5] & 1);
-              reg_6_shift(shift);
+
+            // for (int n = 0; n < 192; n++) {
+            //   *out++ = (bch[2] & 1);
+            //   bch[2] = (bch[2] >> 1) | (bch[1] << 63);
+            //   bch[1] = (bch[1] >> 1) | (bch[0] << 63);
+            //   bch[0] = bch[0] >> 1;
+            // }
+
+            for (int n = 0; n < 192/3; n++) {
+              *out++ = bch[2] & 1;
+              bch[2] >>= 1;
             }
+                        
+            for (int n = 0; n < 192/3; n++) {
+              *out++ = bch[1] & 1;
+              bch[1] >>= 1;
+            }
+                        
+            for (int n = 0; n < 192/3; n++) {
+              *out++ = bch[0] & 1;
+              bch[0] >>= 1;
+            }
+
+
           }
+
+
+
+//          for (int i = 0; i < noutput_items; i += nbch) {
+//            //Zero the shift register
+//            memset(shift, 0, sizeof(unsigned int) * 6);
+//            // MSB of the codeword first
+//            for (int j = 0; j < (int)kbch; j++) {
+//              temp = *in++;
+//              *out++ = temp;
+//              consumed++;
+//              b = (temp ^ (shift[5] & 1));
+//              reg_6_shift(shift);
+//              if (b) {
+//                shift[0] ^= m_poly_n_12[0];
+//                shift[1] ^= m_poly_n_12[1];
+//                shift[2] ^= m_poly_n_12[2];
+//                shift[3] ^= m_poly_n_12[3];
+//                shift[4] ^= m_poly_n_12[4];
+//                shift[5] ^= m_poly_n_12[5];
+//              }
+//            }
+//            // Now add the parity bits to the output
+//            for (int n = 0; n < 192; n++) {
+//              *out++ = (shift[5] & 1);
+//              reg_6_shift(shift);
+//            }
+//          }
           break;
         case BCH_CODE_N10:
           for (int i = 0; i < noutput_items; i += nbch) {
