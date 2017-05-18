@@ -1,0 +1,13 @@
+
+
+1. bbscrambler works now on a 64bit basis, so 8bit per xor operation
+2. ldpc works on bitwise xor of bits,
+    loop unrolling, read one input bit just once,
+3. bit interleaver, use a lookup table instead of generic mapping
+    hardcoded some things for specific code
+4. bch code lookup table
+
+
+Ideas:
+-operate with packed bytes in bbheader, bbscrambler and bch code,
+-make improvements generic for each code of a FECFRAME
