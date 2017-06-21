@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Vv002 Cr35L
-# Generated: Mon May  1 12:12:43 2017
+# Generated: Wed May 24 15:36:46 2017
 ##################################################
 
 from gnuradio import blocks
@@ -42,9 +42,8 @@ class vv002_cr35l(gr.top_block):
         self.dtv_dvb_bbscrambler_bb_0 = dtv.dvb_bbscrambler_bb(dtv.STANDARD_DVBT2, dtv.FECFRAME_NORMAL, dtv.C3_5)
         self.dtv_dvb_bbheader_bb_0 = dtv.dvb_bbheader_bb(dtv.STANDARD_DVBT2, dtv.FECFRAME_NORMAL, dtv.C3_5, dtv.RO_0_35, dtv.INPUTMODE_HIEFF, dtv.INBAND_OFF, 168, 4000000)
         self.digital_ofdm_cyclic_prefixer_0 = digital.ofdm_cyclic_prefixer(32768, 32768+32768/128, 0, '')
-        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, input_file, False)
-        self.blocks_file_sink_1 = blocks.file_sink(gr.sizeof_gr_complex*1, output_file, False)
-        self.blocks_file_sink_1.set_unbuffered(False)
+        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_gr_complex*1)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, input_file, True)
 
         ##################################################
         # Connections
@@ -60,7 +59,7 @@ class vv002_cr35l(gr.top_block):
         self.connect((self.dtv_dvbt2_freqinterleaver_cc_0, 0), (self.dtv_dvbt2_pilotgenerator_cc_0, 0))
         self.connect((self.dtv_dvbt2_interleaver_bb_0, 0), (self.dtv_dvbt2_modulator_bc_0, 0))
         self.connect((self.dtv_dvbt2_modulator_bc_0, 0), (self.dtv_dvbt2_cellinterleaver_cc_0, 0))
-        self.connect((self.dtv_dvbt2_p1insertion_cc_0, 0), (self.blocks_file_sink_1, 0))
+        self.connect((self.dtv_dvbt2_p1insertion_cc_0, 0), (self.blocks_null_sink_0, 0))
         self.connect((self.dtv_dvbt2_pilotgenerator_cc_0, 0), (self.digital_ofdm_cyclic_prefixer_0, 0))
 
     def get_output_file(self):
@@ -68,14 +67,13 @@ class vv002_cr35l(gr.top_block):
 
     def set_output_file(self, output_file):
         self.output_file = output_file
-        self.blocks_file_sink_1.open(self.output_file)
 
     def get_input_file(self):
         return self.input_file
 
     def set_input_file(self, input_file):
         self.input_file = input_file
-        self.blocks_file_source_0.open(self.input_file, False)
+        self.blocks_file_source_0.open(self.input_file, True)
 
 
 def main(top_block_cls=vv002_cr35l, options=None):
