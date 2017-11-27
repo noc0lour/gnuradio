@@ -105,6 +105,8 @@ namespace gr {
 
     sink_c_impl::~sink_c_impl()
     {
+      std::cout << "qtgui: deleting sink" << std::endl;
+      d_qApplication->quit();
       delete d_main_gui;
       delete d_fft;
       delete d_argv;
