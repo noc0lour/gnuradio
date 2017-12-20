@@ -1,5 +1,6 @@
 id: qtgui_sink_x
 label: QT GUI Sink
+flags: python
 
 parameters:
 -   id: type
@@ -77,6 +78,11 @@ parameters:
     label: GUI Hint
     dtype: gui_hint
     hide: part
+-   id: freqchangevar
+    label: Clicked freq variable
+    dtype: raw
+    default: None
+    hide: part
 -   id: showports
     label: Show Msg Ports
     dtype: bool
@@ -128,6 +134,13 @@ templates:
 
         self.${id}.enable_rf_freq(${showrf})
 
+        % if freqchangevar is not None:
+        def ${id}_callback(p, num):
+            if num == 1 or num == 2:
+                self.set_${freqchangevar}(p.x())
+
+        Qt.QObject.connect(self._${id}_win, Qt.SIGNAL("plotPointSelected(QPointF, int)"), ${id}_callback)
+        % endif
         ${gui_hint() % win}
 
 documentation: |-

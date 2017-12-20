@@ -1,5 +1,6 @@
 id: qtgui_histogram_sink_x
 label: QT GUI Histogram Sink
+flags: python
 
 parameters:
 -   id: type
@@ -363,6 +364,9 @@ templates:
         import sip
     callbacks:
     - set_update_time(${update_time})
+    - set_title(${which}, ${title})
+    - set_color(${which}, ${color})
+    - set_bins(${bins})
     - set_bins(${bins})
     - set_x_axis(${xmin}, ${xmax})
     make: |-

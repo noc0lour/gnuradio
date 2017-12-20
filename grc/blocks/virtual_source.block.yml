@@ -1,0 +1,14 @@
+id: virtual_source
+label: Virtual Source
+flags: python, cpp
+
+parameters:
+-   id: stream_id
+    label: Stream ID
+    dtype: stream_id
+
+outputs:
+-   domain: stream
+    dtype: ''
+
+file_format: 1
