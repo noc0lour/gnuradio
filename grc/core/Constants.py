@@ -75,14 +75,6 @@ PARAM_TYPE_MAP = {
 
 # Define types, native python + numpy
 VECTOR_TYPES = (tuple, list, set, numpy.ndarray)
-COMPLEX_TYPES = [complex, numpy.complex, numpy.complex64, numpy.complex128]
-REAL_TYPES = [float, numpy.float, numpy.float32, numpy.float64]
-INT_TYPES = [int, long, numpy.int, numpy.int8, numpy.int16, numpy.int32, numpy.uint64,
-             numpy.uint, numpy.uint8, numpy.uint16, numpy.uint32, numpy.uint64]
-# Cast to tuple for isinstance, concat subtypes
-COMPLEX_TYPES = tuple(COMPLEX_TYPES + REAL_TYPES + INT_TYPES)
-REAL_TYPES = tuple(REAL_TYPES + INT_TYPES)
-INT_TYPES = tuple(INT_TYPES)
 
 # Updating colors. Using the standard color palette from:
 #  http://www.google.com/design/spec/style/color.html#color-color-palette
