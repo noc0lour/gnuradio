@@ -22,7 +22,7 @@
 ########################################################################
 include(GrBoost)
 
-find_package(PythonLibs 2)
+find_package(PythonLibs ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR} EXACT)
 
 include(GrPython)
 
