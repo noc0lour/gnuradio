@@ -24,7 +24,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="classic">
        <property name="sizePolicy">
@@ -62,7 +62,7 @@
             </sizepolicy>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>7</number>
            </property>
            <property name="tabsClosable">
             <bool>false</bool>
@@ -76,7 +76,11 @@
             </attribute>
             <layout class="QHBoxLayout" name="horizontalLayout_9">
              <item>
-              <widget class="QwtPlot" name="freqPlot"/>
+              <widget class="PlotWidget" name="freqPlot">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -86,7 +90,7 @@
             </attribute>
             <layout class="QHBoxLayout" name="horizontalLayout_10">
              <item>
-              <widget class="QwtPlot" name="timePlot"/>
+              <widget class="PlotWidget" name="timePlot"/>
              </item>
             </layout>
            </widget>
@@ -96,7 +100,7 @@
             </attribute>
             <layout class="QHBoxLayout" name="horizontalLayout_11">
              <item>
-              <widget class="QwtPlot" name="phasePlot"/>
+              <widget class="PlotWidget" name="phasePlot"/>
              </item>
             </layout>
            </widget>
@@ -106,7 +110,7 @@
             </attribute>
             <layout class="QHBoxLayout" name="horizontalLayout_12">
              <item>
-              <widget class="QwtPlot" name="groupPlot"/>
+              <widget class="PlotWidget" name="groupPlot"/>
              </item>
             </layout>
            </widget>
@@ -126,14 +130,7 @@
             </attribute>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
-              <widget class="QwtPlot" name="impresPlot">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-              </widget>
+              <widget class="PlotWidget" name="impresPlot"/>
              </item>
             </layout>
            </widget>
@@ -143,7 +140,7 @@
             </attribute>
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <widget class="QwtPlot" name="stepresPlot"/>
+              <widget class="PlotWidget" name="stepresPlot"/>
              </item>
             </layout>
            </widget>
@@ -153,7 +150,7 @@
             </attribute>
             <layout class="QHBoxLayout" name="horizontalLayout_17">
              <item>
-              <widget class="QwtPlot" name="pdelayPlot"/>
+              <widget class="PlotWidget" name="pdelayPlot"/>
              </item>
             </layout>
            </widget>
@@ -632,14 +629,7 @@
              </attribute>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
-               <widget class="QwtPlot" name="mfreqPlot">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
+               <widget class="PlotWidget" name="mfreqPlot"/>
               </item>
               <item>
                <widget class="QGroupBox" name="mfgroupBox">
@@ -790,14 +780,7 @@
              </attribute>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <item>
-               <widget class="QwtPlot" name="mtimePlot">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
+               <widget class="PlotWidget" name="mtimePlot"/>
               </item>
               <item>
                <widget class="QGroupBox" name="mtgroupBox">
@@ -2195,8 +2178,8 @@
      <rect>
       <x>408</x>
       <y>108</y>
-      <width>129</width>
-      <height>86</height>
+      <width>161</width>
+      <height>88</height>
      </rect>
     </property>
     <property name="title">
@@ -2542,12 +2525,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>BandGraphicsView</class>
    <extends>QGraphicsView</extends>
    <header>bandgraphicsview</header>
@@ -2556,6 +2533,11 @@
    <class>PzPlot</class>
    <extends>QListView</extends>
    <header>polezero_plot</header>
+  </customwidget>
+  <customwidget>
+   <class>PlotWidget</class>
+   <extends>QGraphicsView</extends>
+   <header>pyqtgraph</header>
   </customwidget>
  </customwidgets>
  <tabstops>

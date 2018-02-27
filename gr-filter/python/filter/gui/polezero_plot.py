@@ -19,65 +19,58 @@ from __future__ import unicode_literals
 # Boston, MA 02110-1301, USA.
 #
 
-import sys
-from PyQt4 import Qt, QtCore
+from PyQt5 import Qt, QtCore
 from math import sin, cos, pi
-import PyQt4.Qwt5 as Qwt
+from pyqtgraph import PlotWidget
 from numpy import zeros
 from numpy import float as Float
 from numpy import vectorize
 from numpy import delete
 
-class PzPlot(Qwt.QwtPlot):
+
+class PzPlot(PlotWidget):
 
     def __init__(self, *args):
-        Qwt.QwtPlot.__init__(self, *args)
+        PlotWidget.__init__(self, *args)
 
-
-        self.ymax=0
-        self.xmax=0
-        self.ymin=0
-        self.xmin=0
+        self.ymax = 0
+        self.xmax = 0
+        self.ymin = 0
+        self.xmin = 0
         self.setCanvasColor(Qt.Qt.darkCyan)
 
-        grid = Qwt.QwtPlotGrid()
-        grid.attach(self)
-        grid.setMajPen(Qt.QPen(Qt.Qt.white, 0, Qt.Qt.DotLine))
+        pltitem = self.getPlotItem()
+        pltitem.showGrid()
 
-        self.setAxisScale(Qwt.QwtPlot.xBottom, -3, 3)
-        self.setAxisScale(Qwt.QwtPlot.yLeft, -2, 2)
+        viewbox = pltitem.getViewBox()
+        viewbox.setRange(xRange=(-3, 3), yRange=(-2, 2))
+
         self.drawUnitcircle()
 
-
-
     def setCanvasColor(self, color):
-        self.setCanvasBackground(color)
-        self.replot()
-
+        self.setCanvasColor(color)
+        self.repaint()
 
     def drawUnitcircle(self):
         radius = 1.0
         steps = 1024
 
         angleStep = 2 * pi / steps
-        x=[sin(a * angleStep) * radius for a in range(0, steps)]
-        y=[cos(a * angleStep) * radius for a in range(0, steps)]
+        x = [sin(a * angleStep) * radius for a in range(0, steps)]
+        y = [cos(a * angleStep) * radius for a in range(0, steps)]
 
-        curve = Qwt.QwtPlotCurve()
-        curve.attach(self)
-        curve.setPen(Qt.QPen(Qt.Qt.gray, 1, Qt.Qt.DotLine))
-        curve.setData(x, y)
-
+        pen = Qt.QPen(Qt.Qt.gray, 1, Qt.Qt.DotLine)
+        self.plot(x, y, pen)
 
     def insertZeros(self, roots):
         self.removeallCurves()
         if len(roots):
-            self.__insertZero(Qt.Qt.blue, roots.real,roots.imag)
-            self.ymax =  max(roots.imag)
-            self.ymin =  min(roots.imag)
-            self.xmax =  max(roots.real)
-            self.xmin =  min(roots.real)
-            #To make the plot look good
+            self.__insertZero(Qt.Qt.blue, roots.real, roots.imag)
+            self.ymax = max(roots.imag)
+            self.ymin = min(roots.imag)
+            self.xmax = max(roots.real)
+            self.xmin = min(roots.real)
+            # To make the plot look good
             if self.xmax <= 1.3:
                 self.xmax = 2
             if self.xmin >= -1.3:
@@ -87,22 +80,23 @@ class PzPlot(Qwt.QwtPlot):
             if self.ymin >= -1:
                 self.ymin = -1.5
 
-            self.setAxisScale(Qwt.QwtPlot.xBottom, self.xmin, self.xmax)
-            self.setAxisScale(Qwt.QwtPlot.yLeft, self.ymin, self.ymax)
+            viewbox = self.getPlotItem().getViewBox()
+            viewbox.setRange(xRange=(self.xmin, self.xmax),
+                             yRange=(self.ymin, self.ymax))
 
     def insertPoles(self, roots):
             if len(roots):
-                self.__insertPole(Qt.Qt.black, roots.real,roots.imag)
+                self.__insertPole(Qt.Qt.black, roots.real, roots.imag)
                 ymax = max(roots.imag)
-                ymax = max(ymax,self.ymax)
+                ymax = max(ymax, self.ymax)
                 ymin = min(roots.imag)
-                ymin = min(ymin,self.ymin)
+                ymin = min(ymin, self.ymin)
                 xmax = max(roots.real)
-                xmax = max(xmax,self.xmax)
+                xmax = max(xmax, self.xmax)
                 xmin = min(roots.real)
-                xmin = min(xmin,self.xmin)
+                xmin = min(xmin, self.xmin)
 
-                #To make the plot look good
+                # To make the plot look good
                 if xmax <= 1.3:
                     xmax = 2
                 else:
@@ -123,39 +117,25 @@ class PzPlot(Qwt.QwtPlot):
                 else:
                     ymin = 1.2 * ymin
 
-                self.setAxisScale(Qwt.QwtPlot.xBottom, xmin, xmax)
-                self.setAxisScale(Qwt.QwtPlot.yLeft, ymin, ymax)
+                viewbox = self.getPlotItem().getViewBox()
+                viewbox.setRange(xRange=(xmin, xmax), yRange=(ymin, ymax))
+
                 self.drawUnitcircle()
-                self.replot()
 
     def __insertZero(self, color, px, py):
 
-        curve = Qwt.QwtPlotCurve()
-        curve.attach(self)
-
-        curve.setPen(Qt.QPen(Qt.Qt.white, 0, Qt.Qt.NoPen))
-        curve.setSymbol(Qwt.QwtSymbol(Qwt.QwtSymbol.Ellipse,
-                                      Qt.QBrush(Qt.Qt.gray),
-                                      Qt.QPen(color),
-                                      Qt.QSize(10, 10)))
-        curve.setData(px, py)
+        pen = Qt.QPen(Qt.Qt.white, 0, Qt.Qt.NoPen)
+        self.plot(px, py, symbol='o', pen=pen, symbolPen=Qt.QPen(color),
+                  symbolBrush=Qt.QBrush(Qt.Qt.gray), symbolSize=Qt.QSize(10, 10))
 
     def __insertPole(self, color, px, py):
-        curve = Qwt.QwtPlotCurve()
-        curve.attach(self)
 
-        curve.setPen(Qt.QPen(Qt.Qt.white, 0, Qt.Qt.NoPen))
-        curve.setSymbol(Qwt.QwtSymbol(Qwt.QwtSymbol.XCross,
-                                      Qt.QBrush(Qt.Qt.gray),
-                                      Qt.QPen(color),
-                                      Qt.QSize(7, 7)))
-        curve.setData(px, py)
+        pen = Qt.QPen(Qt.Qt.white, 0, Qt.Qt.NoPen)
+        self.plot(px, py, symbol='x', pen=pen, symbolPen=Qt.QPen(color),
+                  symbolBrush=Qt.QBrush(Qt.Qt.gray), symbolSize=Qt.QSize(7, 7))
 
     def removeallCurves(self):
-        for curve in self.itemList():
-            if isinstance(curve, Qwt.QwtPlotCurve):
-                curve.detach()
-        self.replot()
+        self.getPlotItem().clear()
 
 
 
