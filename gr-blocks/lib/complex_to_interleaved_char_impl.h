@@ -26,21 +26,21 @@
 #include <gnuradio/blocks/complex_to_interleaved_char.h>
 
 namespace gr {
-  namespace blocks {
+namespace blocks {
 
-    class BLOCKS_API complex_to_interleaved_char_impl : public complex_to_interleaved_char
-    {
+class BLOCKS_API complex_to_interleaved_char_impl : public complex_to_interleaved_char {
     private:
-      bool d_vector;
+    bool d_vector;
+
     public:
-      complex_to_interleaved_char_impl(bool vector);
+    complex_to_interleaved_char_impl(bool vector);
 
-      int work(int noutput_items,
-	       gr_vector_const_void_star &input_items,
-	       gr_vector_void_star &output_items);
-    };
+    int work(int noutput_items,
+             gr_vector_const_void_star& input_items,
+             gr_vector_void_star& output_items);
+};
 
-  } /* namespace blocks */
+} /* namespace blocks */
 } /* namespace gr */
 
 

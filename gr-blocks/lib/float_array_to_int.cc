@@ -29,18 +29,16 @@
 #include <math.h>
 #include <stdint.h>
 
-static const int64_t MAX_INT =  2147483647; //  (2^31)-1
+static const int64_t MAX_INT = 2147483647;  //  (2^31)-1
 static const int64_t MIN_INT = -2147483647; // -(2^31)-1
 
-void
-float_array_to_int(const float *in, int *out, float scale, int nsamples)
-{
-  for (int i = 0; i < nsamples; i++){
-    int64_t r = llrintf(scale * in[i]);
-    if (r < MIN_INT)
-      r = MIN_INT;
-    else if (r > MAX_INT)
-      r = MAX_INT;
-    out[i] = static_cast<int>(r);
-  }
+void float_array_to_int(const float* in, int* out, float scale, int nsamples) {
+    for (int i = 0; i < nsamples; i++) {
+        int64_t r = llrintf(scale * in[i]);
+        if (r < MIN_INT)
+            r = MIN_INT;
+        else if (r > MAX_INT)
+            r = MAX_INT;
+        out[i] = static_cast<int>(r);
+    }
 }

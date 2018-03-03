@@ -24,89 +24,79 @@
 #include "config.h"
 #endif
 
-#include <gnuradio/io_signature.h>
-#include <boost/thread/thread.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include "sub_msg_source_impl.h"
 #include "tag_headers.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/thread/thread.hpp>
+#include <gnuradio/io_signature.h>
 
 namespace gr {
-  namespace zeromq {
+namespace zeromq {
 
-    sub_msg_source::sptr
-    sub_msg_source::make(char *address, int timeout)
-    {
-      return gnuradio::get_initial_sptr
-        (new sub_msg_source_impl(address, timeout));
+sub_msg_source::sptr sub_msg_source::make(char* address, int timeout) {
+    return gnuradio::get_initial_sptr(new sub_msg_source_impl(address, timeout));
+}
+
+sub_msg_source_impl::sub_msg_source_impl(char* address, int timeout)
+    : gr::block("sub_msg_source", gr::io_signature::make(0, 0, 0), gr::io_signature::make(0, 0, 0)),
+      d_timeout(timeout) {
+    int major, minor, patch;
+    zmq::version(&major, &minor, &patch);
+
+    if (major < 3) {
+        d_timeout = timeout * 1000;
     }
 
-    sub_msg_source_impl::sub_msg_source_impl(char *address, int timeout)
-      : gr::block("sub_msg_source",
-                  gr::io_signature::make(0, 0, 0),
-                  gr::io_signature::make(0, 0, 0)),
-        d_timeout(timeout)
-    {
-      int major, minor, patch;
-      zmq::version(&major, &minor, &patch);
+    d_context = new zmq::context_t(1);
+    d_socket = new zmq::socket_t(*d_context, ZMQ_SUB);
 
-      if (major < 3) {
-        d_timeout = timeout*1000;
-      }
+    d_socket->setsockopt(ZMQ_SUBSCRIBE, "", 0);
+    d_socket->connect(address);
 
-      d_context = new zmq::context_t(1);
-      d_socket = new zmq::socket_t(*d_context, ZMQ_SUB);
+    message_port_register_out(pmt::mp("out"));
+}
 
-      d_socket->setsockopt(ZMQ_SUBSCRIBE, "", 0);
-      d_socket->connect (address);
+sub_msg_source_impl::~sub_msg_source_impl() {
+    d_socket->close();
+    delete d_socket;
+    delete d_context;
+}
 
-      message_port_register_out(pmt::mp("out"));
-    }
+bool sub_msg_source_impl::start() {
+    d_finished = false;
+    d_thread = new boost::thread(boost::bind(&sub_msg_source_impl::readloop, this));
+    return true;
+}
 
-    sub_msg_source_impl::~sub_msg_source_impl()
-    {
-      d_socket->close();
-      delete d_socket;
-      delete d_context;
-    }
+bool sub_msg_source_impl::stop() {
+    d_finished = true;
+    d_thread->join();
+    return true;
+}
 
-    bool sub_msg_source_impl::start()
-    {
-      d_finished = false;
-      d_thread = new boost::thread(boost::bind(&sub_msg_source_impl::readloop, this));
-      return true;
-    }
+void sub_msg_source_impl::readloop() {
+    while (!d_finished) {
 
-    bool sub_msg_source_impl::stop()
-    {
-      d_finished = true;
-      d_thread->join();
-      return true;
-    }
-
-    void sub_msg_source_impl::readloop()
-    {
-      while(!d_finished){
-
-        zmq::pollitem_t items[] = { { static_cast<void *>(*d_socket), 0, ZMQ_POLLIN, 0 } };
+        zmq::pollitem_t items[] = {{static_cast<void*>(*d_socket), 0, ZMQ_POLLIN, 0}};
         zmq::poll(&items[0], 1, d_timeout);
 
         //  If we got a reply, process
         if (items[0].revents & ZMQ_POLLIN) {
 
-          // Receive data
-          zmq::message_t msg;
-          d_socket->recv(&msg);
+            // Receive data
+            zmq::message_t msg;
+            d_socket->recv(&msg);
 
-          std::string buf(static_cast<char*>(msg.data()), msg.size());
-          std::stringbuf sb(buf);
-          pmt::pmt_t m = pmt::deserialize(sb);
+            std::string buf(static_cast<char*>(msg.data()), msg.size());
+            std::stringbuf sb(buf);
+            pmt::pmt_t m = pmt::deserialize(sb);
 
-          message_port_pub(pmt::mp("out"), m);
+            message_port_pub(pmt::mp("out"), m);
         } else {
-          boost::this_thread::sleep(boost::posix_time::microseconds(100));
+            boost::this_thread::sleep(boost::posix_time::microseconds(100));
         }
-      }
     }
+}
 
-  } /* namespace zeromq */
+} /* namespace zeromq */
 } /* namespace gr */

@@ -26,47 +26,46 @@
 #include <gnuradio/vocoder/freedv_tx_ss.h>
 
 extern "C" {
-  struct freedv_tx_callback_state {
-    char  tx_str[80];
-    char *ptx_str;
+struct freedv_tx_callback_state {
+    char tx_str[80];
+    char* ptx_str;
     int calls;
-  };
-  char get_next_tx_char(void *callback_state);
-  void get_next_proto(void *callback_state,char *proto_bits);
-  void datarx(void *callback_state, unsigned char *packet, size_t size);
-  void datatx(void *callback_state, unsigned char *packet, size_t *size);
+};
+char get_next_tx_char(void* callback_state);
+void get_next_proto(void* callback_state, char* proto_bits);
+void datarx(void* callback_state, unsigned char* packet, size_t size);
+void datatx(void* callback_state, unsigned char* packet, size_t* size);
 }
 
 namespace gr {
-  namespace vocoder {
+namespace vocoder {
 
-    class freedv_tx_ss_impl : public freedv_tx_ss
-    {
+class freedv_tx_ss_impl : public freedv_tx_ss {
     private:
-      short *d_speech_in;
-      short *d_mod_out;
-      struct freedv_tx_callback_state d_cb_state;
-      struct freedv *d_freedv;
-      int d_mode;
-      float d_squelch_thresh;
-      int d_speech_samples;
-      int d_nom_modem_samples;
-      int d_use_codectx;
-      int d_use_datatx;
-      std::string d_msg_text;
-      struct CODEC2 *d_c2;
+    short* d_speech_in;
+    short* d_mod_out;
+    struct freedv_tx_callback_state d_cb_state;
+    struct freedv* d_freedv;
+    int d_mode;
+    float d_squelch_thresh;
+    int d_speech_samples;
+    int d_nom_modem_samples;
+    int d_use_codectx;
+    int d_use_datatx;
+    std::string d_msg_text;
+    struct CODEC2* d_c2;
 
     public:
-      freedv_tx_ss_impl(int mode, const std::string txt_msg);
-      ~freedv_tx_ss_impl();
+    freedv_tx_ss_impl(int mode, const std::string txt_msg);
+    ~freedv_tx_ss_impl();
 
-      // Where all the action really happens
-      int work(int noutput_items,
-               gr_vector_const_void_star &input_items,
-               gr_vector_void_star &output_items);
-    };
+    // Where all the action really happens
+    int work(int noutput_items,
+             gr_vector_const_void_star& input_items,
+             gr_vector_void_star& output_items);
+};
 
-  } /* namespace vocoder */
+} /* namespace vocoder */
 } /* namespace gr */
 
 #endif /* INCLUDED_VOCODER_FREEDV_TX_SS_IMPL_H */

@@ -27,12 +27,11 @@
 
 namespace gr {
 
-  class GR_RUNTIME_API vmcircbuf_prefs
-  {
-  public:
-    static int get(const char *key, char *value, int value_size);
-    static void set(const char *key, const char *value);
-  };
+class GR_RUNTIME_API vmcircbuf_prefs {
+    public:
+    static int get(const char* key, char* value, int value_size);
+    static void set(const char* key, const char* value);
+};
 
 } /* namespace gr */
 

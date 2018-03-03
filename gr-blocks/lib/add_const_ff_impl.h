@@ -26,27 +26,26 @@
 #include <gnuradio/blocks/add_const_ff.h>
 
 namespace gr {
-  namespace blocks {
+namespace blocks {
 
-    class BLOCKS_API add_const_ff_impl : public add_const_ff
-    {
+class BLOCKS_API add_const_ff_impl : public add_const_ff {
     private:
-      float d_k;
+    float d_k;
 
     public:
-      add_const_ff_impl(float k);
+    add_const_ff_impl(float k);
 
-      void setup_rpc();
+    void setup_rpc();
 
-      float k() const { return d_k; }
-      void set_k(float k) { d_k = k; }
+    float k() const { return d_k; }
+    void set_k(float k) { d_k = k; }
 
-      int work(int noutput_items,
-	       gr_vector_const_void_star &input_items,
-	       gr_vector_void_star &output_items);
-    };
+    int work(int noutput_items,
+             gr_vector_const_void_star& input_items,
+             gr_vector_void_star& output_items);
+};
 
-  } /* namespace blocks */
+} /* namespace blocks */
 } /* namespace gr */
 
 #endif /* ADD_CONST_FF_IMPL */

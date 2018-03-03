@@ -23,19 +23,18 @@
 #ifndef INCLUDED_QA_GR_HIER_BLOCK2_H
 #define INCLUDED_QA_GR_HIER_BLOCK2_H
 
-#include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
+#include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
 
-class qa_hier_block2 : public CppUnit::TestCase
-{
+class qa_hier_block2 : public CppUnit::TestCase {
     CPPUNIT_TEST_SUITE(qa_hier_block2);
 
     CPPUNIT_TEST(test_make);
 
     CPPUNIT_TEST_SUITE_END();
 
-private:
+    private:
     void test_make();
 };
 

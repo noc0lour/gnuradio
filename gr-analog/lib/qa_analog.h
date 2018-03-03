@@ -23,15 +23,15 @@
 #ifndef _QA_GR_ANALOG_H_
 #define _QA_GR_ANALOG_H_
 
-#include <gnuradio/attributes.h>
 #include <cppunit/TestSuite.h>
+#include <gnuradio/attributes.h>
 
 //! collect all the tests for the gr-analog directory
 
 class __GR_ATTR_EXPORT qa_gr_analog {
- public:
-  //! return suite of tests for all of gr-analog directory
-  static CppUnit::TestSuite *suite();
+    public:
+    //! return suite of tests for all of gr-analog directory
+    static CppUnit::TestSuite* suite();
 };
 
 

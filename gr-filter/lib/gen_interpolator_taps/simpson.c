@@ -2,8 +2,8 @@
 #include <math.h>
 #include <stdio.h>
 
-#define	EPS	(1.0e-5)
-#define	JMAX	16
+#define EPS (1.0e-5)
+#define JMAX 16
 
 /*
  * Compute the Nth stage of refinement of an extended trapezoidal
@@ -18,31 +18,26 @@
  * NOR THREAD SAFE!
  */
 
-double
-trapzd (double (*func)(double),
-	double a, double b,
-	int    n)
-{
-  long double		x, tnm, sum, del;
-  static long double	s;
-  static int	it;
-  int		j;
+double trapzd(double (*func)(double), double a, double b, int n) {
+    long double x, tnm, sum, del;
+    static long double s;
+    static int it;
+    int j;
 
-  if (n == 1){
-    it = 1;	/* # of points to add on the next call */
-    s = 0.5 * (b - a) * (func(a) + func(b));
-    return s;
-  }
-  else {
-    tnm = it;
-    del = (b-a)/tnm;		/* this is the spacing of the points to be added */
-    x = a + 0.5*del;
-    for (sum = 0.0, j = 1; j <= it; j++, x += del)
-      sum += func(x);
-    it *= 2;
-    s = 0.5 * (s + (b-a) * sum/tnm);	/* replace s by it's refined value */
-    return s;
-  }
+    if (n == 1) {
+        it = 1; /* # of points to add on the next call */
+        s = 0.5 * (b - a) * (func(a) + func(b));
+        return s;
+    } else {
+        tnm = it;
+        del = (b - a) / tnm; /* this is the spacing of the points to be added */
+        x = a + 0.5 * del;
+        for (sum = 0.0, j = 1; j <= it; j++, x += del)
+            sum += func(x);
+        it *= 2;
+        s = 0.5 * (s + (b - a) * sum / tnm); /* replace s by it's refined value */
+        return s;
+    }
 }
 
 /*
@@ -52,25 +47,23 @@ trapzd (double (*func)(double),
  * Integration is performed by Simpson's rule.
  */
 
-double
-qsimp (double (*func)(double),
-       double a,	/* lower limit */
-       double b)	/* upper limit */
+double qsimp(double (*func)(double),
+             double a, /* lower limit */
+             double b) /* upper limit */
 {
-  int		j;
-  long double	s, st, ost, os;
+    int j;
+    long double s, st, ost, os;
 
-  ost = os = -1.0e30;
-  for (j = 1; j <= JMAX; j++){
-    st = trapzd (func, a, b, j);
-    s = (4.0 * st - ost)/3.0;
-    if (fabs (s - os) < EPS * fabs(os))
-      return s;
-    os = s;
-    ost = st;
-  }
-  fprintf (stderr, "Too many steps in routine QSIMP\n");
-  // exit (1);
-  return s;
+    ost = os = -1.0e30;
+    for (j = 1; j <= JMAX; j++) {
+        st = trapzd(func, a, b, j);
+        s = (4.0 * st - ost) / 3.0;
+        if (fabs(s - os) < EPS * fabs(os))
+            return s;
+        os = s;
+        ost = st;
+    }
+    fprintf(stderr, "Too many steps in routine QSIMP\n");
+    // exit (1);
+    return s;
 }
-

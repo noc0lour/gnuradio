@@ -27,7 +27,5 @@
 #include <gnuradio/vocoder/freedv_api.h>
 
 namespace gr {
-  namespace vocoder {
-
-  } /* namespace vocoder */
+namespace vocoder {} /* namespace vocoder */
 } /* namespace gr */

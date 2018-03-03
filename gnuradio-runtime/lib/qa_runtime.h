@@ -23,15 +23,15 @@
 #ifndef _QA_RUNTIME_H_
 #define _QA_RUNTIME_H_
 
-#include <gnuradio/attributes.h>
 #include <cppunit/TestSuite.h>
+#include <gnuradio/attributes.h>
 
 //! collect all the tests for the runtime directory
 
 class __GR_ATTR_EXPORT qa_runtime {
- public:
-  //! return suite of tests for all of runtime directory
-  static CppUnit::TestSuite *suite ();
+    public:
+    //! return suite of tests for all of runtime directory
+    static CppUnit::TestSuite* suite();
 };
 
 

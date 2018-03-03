@@ -29,19 +29,17 @@
 #include <config.h>
 #endif
 
-#include <qa_logger.h>
 #include <gnuradio/logger.h>
+#include <qa_logger.h>
 
-void
-qa_logger::t1()
-{
-  GR_LOG_GETLOGGER(LOG,"main");
-  GR_ADD_CONSOLE_APPENDER("main","cout","%d{%H:%M:%S} : %m%n");
-  GR_LOG_NOTICE(LOG,"test from c++ NOTICE");
-  GR_LOG_DEBUG(LOG,"test from c++ DEBUG");
-  GR_LOG_INFO(LOG,"test from c++ INFO");
-  GR_LOG_WARN(LOG,"test from c++ WARN");
-  GR_LOG_ERROR(LOG,"test from c++ ERROR");
-  GR_LOG_FATAL(LOG,"test from c++ FATAL");
-  CPPUNIT_ASSERT(true);
+void qa_logger::t1() {
+    GR_LOG_GETLOGGER(LOG, "main");
+    GR_ADD_CONSOLE_APPENDER("main", "cout", "%d{%H:%M:%S} : %m%n");
+    GR_LOG_NOTICE(LOG, "test from c++ NOTICE");
+    GR_LOG_DEBUG(LOG, "test from c++ DEBUG");
+    GR_LOG_INFO(LOG, "test from c++ INFO");
+    GR_LOG_WARN(LOG, "test from c++ WARN");
+    GR_LOG_ERROR(LOG, "test from c++ ERROR");
+    GR_LOG_FATAL(LOG, "test from c++ FATAL");
+    CPPUNIT_ASSERT(true);
 }

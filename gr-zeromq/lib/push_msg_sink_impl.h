@@ -27,23 +27,22 @@
 #include <zmq.hpp>
 
 namespace gr {
-  namespace zeromq {
+namespace zeromq {
 
-    class push_msg_sink_impl : public push_msg_sink
-    {
+class push_msg_sink_impl : public push_msg_sink {
     private:
-      float           d_timeout;
-      zmq::context_t  *d_context;
-      zmq::socket_t   *d_socket;
+    float d_timeout;
+    zmq::context_t* d_context;
+    zmq::socket_t* d_socket;
 
     public:
-      push_msg_sink_impl(char *address, int timeout);
-      ~push_msg_sink_impl();
+    push_msg_sink_impl(char* address, int timeout);
+    ~push_msg_sink_impl();
 
-      void handler(pmt::pmt_t msg);
-    };
+    void handler(pmt::pmt_t msg);
+};
 
-  } // namespace zeromq
+} // namespace zeromq
 } // namespace gr
 
 #endif /* INCLUDED_ZEROMQ_ZMQ_PUSH_MSG_SINK_IMPL_H */

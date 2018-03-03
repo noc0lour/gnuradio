@@ -23,15 +23,15 @@
 #ifndef INCLUDED_QA_PMT_H
 #define INCLUDED_QA_PMT_H
 
-#include <gnuradio/attributes.h>
 #include <cppunit/TestSuite.h>
+#include <gnuradio/attributes.h>
 
 //! collect all the tests for pmt
 
 class __GR_ATTR_EXPORT qa_pmt {
- public:
-  //! return suite of tests for all of pmt
-  static CppUnit::TestSuite *suite ();
+    public:
+    //! return suite of tests for all of pmt
+    static CppUnit::TestSuite* suite();
 };
 
 #endif /* INCLUDED_QA_PMT_H */

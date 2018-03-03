@@ -28,13 +28,11 @@
 #include <qa_pmt_prims.h>
 #include <qa_pmt_unv.h>
 
-CppUnit::TestSuite *
-qa_pmt::suite()
-{
-  CppUnit::TestSuite *s = new CppUnit::TestSuite("pmt");
+CppUnit::TestSuite* qa_pmt::suite() {
+    CppUnit::TestSuite* s = new CppUnit::TestSuite("pmt");
 
-  s->addTest(qa_pmt_prims::suite());
-  s->addTest(qa_pmt_unv::suite());
+    s->addTest(qa_pmt_prims::suite());
+    s->addTest(qa_pmt_unv::suite());
 
-  return s;
+    return s;
 }

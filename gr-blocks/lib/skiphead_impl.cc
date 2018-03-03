@@ -29,65 +29,54 @@
 #include <string.h>
 
 namespace gr {
-  namespace blocks {
+namespace blocks {
 
-    skiphead::sptr
-    skiphead::make(size_t itemsize, uint64_t nitems_to_skip)
-    {
-      return gnuradio::get_initial_sptr
-        (new skiphead_impl(itemsize, nitems_to_skip));
-    }
+skiphead::sptr skiphead::make(size_t itemsize, uint64_t nitems_to_skip) {
+    return gnuradio::get_initial_sptr(new skiphead_impl(itemsize, nitems_to_skip));
+}
 
-    skiphead_impl::skiphead_impl(size_t itemsize, uint64_t nitems_to_skip)
-      : block("skiphead",
-                 io_signature::make(1, 1, itemsize),
-                 io_signature::make(1, 1, itemsize)),
-        d_nitems_to_skip(nitems_to_skip), d_nitems(0)
-    {
-    }
+skiphead_impl::skiphead_impl(size_t itemsize, uint64_t nitems_to_skip)
+    : block("skiphead", io_signature::make(1, 1, itemsize), io_signature::make(1, 1, itemsize)),
+      d_nitems_to_skip(nitems_to_skip), d_nitems(0) {}
 
-    skiphead_impl::~skiphead_impl()
-    {
-    }
+skiphead_impl::~skiphead_impl() {}
 
-    int
-    skiphead_impl::general_work(int noutput_items,
-                                gr_vector_int &ninput_items_,
-                                gr_vector_const_void_star &input_items,
-                                gr_vector_void_star &output_items)
-    {
-      const char *in = (const char*)input_items[0];
-      char *out = (char*)output_items[0];
+int skiphead_impl::general_work(int noutput_items,
+                                gr_vector_int& ninput_items_,
+                                gr_vector_const_void_star& input_items,
+                                gr_vector_void_star& output_items) {
+    const char* in = (const char*)input_items[0];
+    char* out = (char*)output_items[0];
 
-      int ninput_items = std::min(ninput_items_[0], noutput_items);
-      int ii = 0;			// input index
+    int ninput_items = std::min(ninput_items_[0], noutput_items);
+    int ii = 0; // input index
 
-      while (ii < ninput_items) {
-        uint64_t ni_total = ii + d_nitems;  	// total items processed so far
-        if(ni_total < d_nitems_to_skip) {	// need to skip some more
+    while (ii < ninput_items) {
+        uint64_t ni_total = ii + d_nitems; // total items processed so far
+        if (ni_total < d_nitems_to_skip) { // need to skip some more
 
-          int n_to_skip = (int)std::min(d_nitems_to_skip - ni_total,
-                                        (uint64_t)(ninput_items - ii));
-          ii += n_to_skip;
+            int n_to_skip =
+                (int)std::min(d_nitems_to_skip - ni_total, (uint64_t)(ninput_items - ii));
+            ii += n_to_skip;
         }
 
-        else {		// nothing left to skip.  copy away
-          int n_to_copy = ninput_items - ii;
-          if(n_to_copy > 0) {
-            size_t itemsize = output_signature()->sizeof_stream_item(0);
-            memcpy(out, in + (ii*itemsize), n_to_copy*itemsize);
-          }
+        else { // nothing left to skip.  copy away
+            int n_to_copy = ninput_items - ii;
+            if (n_to_copy > 0) {
+                size_t itemsize = output_signature()->sizeof_stream_item(0);
+                memcpy(out, in + (ii * itemsize), n_to_copy * itemsize);
+            }
 
-          d_nitems += ninput_items;
-          consume_each(ninput_items);
-          return n_to_copy;
+            d_nitems += ninput_items;
+            consume_each(ninput_items);
+            return n_to_copy;
         }
-      }
-
-      d_nitems += ninput_items;
-      consume_each(ninput_items);
-      return 0;
     }
 
-  } /* namespace blocks */
+    d_nitems += ninput_items;
+    consume_each(ninput_items);
+    return 0;
+}
+
+} /* namespace blocks */
 } /* namespace gr */

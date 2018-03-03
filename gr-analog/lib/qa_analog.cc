@@ -27,10 +27,8 @@
 
 #include <qa_analog.h>
 
-CppUnit::TestSuite *
-qa_gr_analog::suite()
-{
-  CppUnit::TestSuite *s = new CppUnit::TestSuite("gr-analog");
+CppUnit::TestSuite* qa_gr_analog::suite() {
+    CppUnit::TestSuite* s = new CppUnit::TestSuite("gr-analog");
 
-  return s;
+    return s;
 }

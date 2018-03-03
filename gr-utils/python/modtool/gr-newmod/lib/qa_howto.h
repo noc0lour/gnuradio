@@ -23,16 +23,15 @@
 #ifndef _QA_HOWTO_H_
 #define _QA_HOWTO_H_
 
-#include <gnuradio/attributes.h>
 #include <cppunit/TestSuite.h>
+#include <gnuradio/attributes.h>
 
 //! collect all the tests for the gr-filter directory
 
-class __GR_ATTR_EXPORT qa_howto
-{
- public:
-  //! return suite of tests for all of gr-filter directory
-  static CppUnit::TestSuite *suite();
+class __GR_ATTR_EXPORT qa_howto {
+    public:
+    //! return suite of tests for all of gr-filter directory
+    static CppUnit::TestSuite* suite();
 };
 
 #endif /* _QA_HOWTO_H_ */

@@ -26,20 +26,19 @@
 #include <gnuradio/blocks/pdu_remove.h>
 
 namespace gr {
-  namespace blocks {
+namespace blocks {
 
-    class pdu_remove_impl : public pdu_remove
-    {
+class pdu_remove_impl : public pdu_remove {
     private:
-      pmt::pmt_t d_k;
+    pmt::pmt_t d_k;
 
     public:
-      pdu_remove_impl(pmt::pmt_t k);
-      void handle_msg(pmt::pmt_t msg);
-      void set_key(pmt::pmt_t key) { d_k = key; };
-    };
+    pdu_remove_impl(pmt::pmt_t k);
+    void handle_msg(pmt::pmt_t msg);
+    void set_key(pmt::pmt_t key) { d_k = key; };
+};
 
-  } /* namespace blocks */
+} /* namespace blocks */
 } /* namespace gr */
 
 #endif /* INCLUDED_BLOCKS_PDU_REMOVE_IMPL_H */

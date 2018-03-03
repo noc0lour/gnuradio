@@ -26,25 +26,24 @@
 #include <gnuradio/blocks/skiphead.h>
 
 namespace gr {
-  namespace blocks {
+namespace blocks {
 
-    class skiphead_impl : public skiphead
-    {
+class skiphead_impl : public skiphead {
     private:
-      uint64_t d_nitems_to_skip;
-      uint64_t d_nitems;           // total items seen
+    uint64_t d_nitems_to_skip;
+    uint64_t d_nitems; // total items seen
 
     public:
-      skiphead_impl(size_t itemsize, uint64_t nitems_to_skip);
-      ~skiphead_impl();
+    skiphead_impl(size_t itemsize, uint64_t nitems_to_skip);
+    ~skiphead_impl();
 
-      int general_work(int noutput_items,
-                       gr_vector_int &ninput_items,
-                       gr_vector_const_void_star &input_items,
-                       gr_vector_void_star &output_items);
-    };
+    int general_work(int noutput_items,
+                     gr_vector_int& ninput_items,
+                     gr_vector_const_void_star& input_items,
+                     gr_vector_void_star& output_items);
+};
 
-  } /* namespace blocks */
+} /* namespace blocks */
 } /* namespace gr */
 
 #endif /* INCLUDED_GR_SKIPHEAD_IMPL_H */

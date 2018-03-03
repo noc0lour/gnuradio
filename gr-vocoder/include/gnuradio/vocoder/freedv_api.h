@@ -32,12 +32,11 @@ extern "C" {
 }
 
 namespace gr {
-  namespace vocoder {
+namespace vocoder {
 
-    class VOCODER_API freedv_api {
+class VOCODER_API freedv_api {
     public:
-
-      enum freedv_modes {
+    enum freedv_modes {
 #ifdef FREEDV_MODE_1600
         MODE_1600 = FREEDV_MODE_1600,
 #endif
@@ -56,13 +55,12 @@ namespace gr {
 #ifdef FREEDV_MODE_800XA
         MODE_800XA = FREEDV_MODE_800XA,
 #endif
-      };
-
-    private:
-
     };
 
-  } /* namespace vocoder */
+    private:
+};
+
+} /* namespace vocoder */
 } /* namespace gr */
 
 #endif /* _VOCODER_FREEDV_H_ */

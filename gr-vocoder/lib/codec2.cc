@@ -27,7 +27,5 @@
 #include <gnuradio/vocoder/codec2.h>
 
 namespace gr {
-  namespace vocoder {
-
-  } /* namespace vocoder */
+namespace vocoder {} /* namespace vocoder */
 } /* namespace gr */

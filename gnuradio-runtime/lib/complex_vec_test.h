@@ -20,31 +20,23 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <complex>
 #include <gnuradio/api.h>
 #include <vector>
-#include <complex>
 
-GR_RUNTIME_API std::vector<std::complex<float> >
-complex_vec_test0();
+GR_RUNTIME_API std::vector<std::complex<float>> complex_vec_test0();
 
-GR_RUNTIME_API std::vector<std::complex<float> >
-complex_vec_test1(const std::vector<std::complex<float> > &input);
+GR_RUNTIME_API std::vector<std::complex<float>>
+complex_vec_test1(const std::vector<std::complex<float>>& input);
 
-GR_RUNTIME_API std::complex<float>
-complex_scalar_test0();
+GR_RUNTIME_API std::complex<float> complex_scalar_test0();
 
-GR_RUNTIME_API std::complex<float>
-complex_scalar_test1(std::complex<float> input);
+GR_RUNTIME_API std::complex<float> complex_scalar_test1(std::complex<float> input);
 
-GR_RUNTIME_API std::vector<int>
-int_vec_test0();
+GR_RUNTIME_API std::vector<int> int_vec_test0();
 
-GR_RUNTIME_API std::vector<int>
-int_vec_test1(const std::vector<int> &input);
+GR_RUNTIME_API std::vector<int> int_vec_test1(const std::vector<int>& input);
 
-GR_RUNTIME_API std::vector<float>
-float_vec_test0();
+GR_RUNTIME_API std::vector<float> float_vec_test0();
 
-GR_RUNTIME_API std::vector<float>
-float_vec_test1(const std::vector<float> &input);
-
+GR_RUNTIME_API std::vector<float> float_vec_test1(const std::vector<float>& input);
