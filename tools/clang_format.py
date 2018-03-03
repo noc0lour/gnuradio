@@ -1,4 +1,18 @@
 #!/usr/bin/env python
+# Copyright (C) 2015,2016 MongoDB Inc.
+# Copyright (C) 2018 Free Software Foundation
+#
+# This program is free software: you can redistribute it and/or  modify
+# it under the terms of the GNU Affero General Public License, version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 A script that provides:
 1. Ability to grab binaries where possible from LLVM.
@@ -9,31 +23,25 @@ A script that provides:
 """
 from __future__ import print_function, absolute_import
 
-import Queue
+import queue
 import difflib
 import glob
 import itertools
 import os
 import re
-import shutil
-import string
 import subprocess
 import sys
-import tarfile
-import tempfile
 import threading
 import time
-import urllib
 from distutils import spawn
 from optparse import OptionParser
 from multiprocessing import cpu_count
 
 # Get relative imports to work when the package is not installed on the PYTHONPATH.
 if __name__ == "__main__" and __package__ is None:
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(os.path.realpath(__file__)))))
-
-from buildscripts import moduleconfig
-
+    sys.path.append(
+        os.path.dirname(
+            os.path.dirname(os.path.abspath(os.path.realpath(__file__)))))
 
 ##############################################################################
 #
@@ -42,26 +50,14 @@ from buildscripts import moduleconfig
 #
 
 # Expected version of clang-format
-CLANG_FORMAT_VERSION = "3.8.0"
-CLANG_FORMAT_SHORT_VERSION = "3.8"
+CLANG_FORMAT_VERSION = "5.0.1"
+CLANG_FORMAT_SHORT_VERSION = "5.0"
 
 # Name of clang-format as a binary
 CLANG_FORMAT_PROGNAME = "clang-format"
 
-# URL location of the "cached" copy of clang-format to download
-# for users which do not have clang-format installed
-CLANG_FORMAT_HTTP_LINUX_CACHE = "https://s3.amazonaws.com/boxes.10gen.com/build/clang-format-3.8-rhel55.tar.gz"
-
-CLANG_FORMAT_HTTP_DARWIN_CACHE = "https://s3.amazonaws.com/boxes.10gen.com/build/clang%2Bllvm-3.8.0-x86_64-apple-darwin.tar.xz"
-
-# Path in the tarball to the clang-format binary
-CLANG_FORMAT_SOURCE_TAR_BASE = string.Template("clang+llvm-$version-$tar_path/bin/" + CLANG_FORMAT_PROGNAME)
-
-# Path to the modules in the mongodb source tree
-# Has to match the string in SConstruct
-MODULE_DIR = "src/mongo/db/modules"
-
 ##############################################################################
+
 
 # Copied from python 2.7 version of subprocess.py
 # Exception classes used by this module.
@@ -71,12 +67,15 @@ class CalledProcessError(Exception):
     The exit status will be stored in the returncode attribute;
     check_output() will also store the output in the output attribute.
     """
+
     def __init__(self, returncode, cmd, output=None):
         self.returncode = returncode
         self.cmd = cmd
         self.output = output
+
     def __str__(self):
-        return ("Command '%s' returned non-zero exit status %d with output %s" %
+        return (
+            "Command '%s' returned non-zero exit status %d with output %s" %
             (self.cmd, self.returncode, self.output))
 
 
@@ -113,67 +112,17 @@ def check_output(*popenargs, **kwargs):
         raise CalledProcessError(retcode, cmd, output)
     return output
 
+
 def callo(args):
     """Call a program, and capture its output
     """
-    return check_output(args)
-
-def get_tar_path(version, tar_path):
-    """ Get the path to clang-format in the llvm tarball
-    """
-    return CLANG_FORMAT_SOURCE_TAR_BASE.substitute(
-        version=version,
-        tar_path=tar_path)
-
-def extract_clang_format(tar_path):
-    # Extract just the clang-format binary
-    # On OSX, we shell out to tar because tarfile doesn't support xz compression
-    if sys.platform == 'darwin':
-         subprocess.call(['tar', '-xzf', tar_path, '*clang-format*'])
-    # Otherwise we use tarfile because some versions of tar don't support wildcards without
-    # a special flag
-    else:
-        tarfp = tarfile.open(tar_path)
-        for name in tarfp.getnames():
-            if name.endswith('clang-format'):
-                tarfp.extract(name)
-        tarfp.close()
-
-def get_clang_format_from_cache_and_extract(url, tarball_ext):
-    """Get clang-format from mongodb's cache
-    and extract the tarball
-    """
-    dest_dir = tempfile.gettempdir()
-    temp_tar_file = os.path.join(dest_dir, "temp.tar" + tarball_ext)
-
-    # Download from file
-    print("Downloading clang-format %s from %s, saving to %s" % (CLANG_FORMAT_VERSION,
-            url, temp_tar_file))
-    urllib.urlretrieve(url, temp_tar_file)
-
-    extract_clang_format(temp_tar_file)
-
-def get_clang_format_from_darwin_cache(dest_file):
-    """Download clang-format from llvm.org, unpack the tarball,
-    and put clang-format in the specified place
-    """
-    get_clang_format_from_cache_and_extract(CLANG_FORMAT_HTTP_DARWIN_CACHE, ".xz")
-
-    # Destination Path
-    shutil.move(get_tar_path(CLANG_FORMAT_VERSION, "x86_64-apple-darwin"), dest_file)
-
-def get_clang_format_from_linux_cache(dest_file):
-    """Get clang-format from mongodb's cache
-    """
-    get_clang_format_from_cache_and_extract(CLANG_FORMAT_HTTP_LINUX_CACHE, ".gz")
-
-    # Destination Path
-    shutil.move("build/bin/clang-format", dest_file)
+    return check_output(args).decode('utf-8')
 
 class ClangFormat(object):
     """Class encapsulates finding a suitable copy of clang-format,
     and linting/formating an individual file
     """
+
     def __init__(self, path, cache_dir):
         self.path = None
         clang_format_progname_ext = ""
@@ -200,10 +149,10 @@ class ClangFormat(object):
             # Check for various versions staring with binaries with version specific suffixes in the
             # user's path
             programs = [
-                    CLANG_FORMAT_PROGNAME + "-" + CLANG_FORMAT_VERSION,
-                    CLANG_FORMAT_PROGNAME + "-" + CLANG_FORMAT_SHORT_VERSION,
-                    CLANG_FORMAT_PROGNAME,
-                    ]
+                CLANG_FORMAT_PROGNAME + "-" + CLANG_FORMAT_VERSION,
+                CLANG_FORMAT_PROGNAME + "-" + CLANG_FORMAT_SHORT_VERSION,
+                CLANG_FORMAT_PROGNAME,
+            ]
 
             if sys.platform == "win32":
                 for i in range(len(programs)):
@@ -224,10 +173,11 @@ class ClangFormat(object):
             programfiles = [
                 os.environ["ProgramFiles"],
                 os.environ["ProgramFiles(x86)"],
-                ]
+            ]
 
             for programfile in programfiles:
-                win32bin = os.path.join(programfile, "LLVM\\bin\\clang-format.exe")
+                win32bin = os.path.join(programfile,
+                                        "LLVM\\bin\\clang-format.exe")
                 if os.path.exists(win32bin):
                     self.path = win32bin
                     break
@@ -237,17 +187,15 @@ class ClangFormat(object):
             if not os.path.isdir(cache_dir):
                 os.makedirs(cache_dir)
 
-            self.path = os.path.join(cache_dir, CLANG_FORMAT_PROGNAME + "-" + CLANG_FORMAT_VERSION + clang_format_progname_ext)
+            self.path = os.path.join(
+                cache_dir, CLANG_FORMAT_PROGNAME + "-" + CLANG_FORMAT_VERSION +
+                clang_format_progname_ext)
 
             # Download a new version if the cache is empty or stale
             if not os.path.isfile(self.path) or not self._validate_version():
-                if sys.platform.startswith("linux"):
-                    get_clang_format_from_linux_cache(self.path)
-                elif sys.platform == "darwin":
-                    get_clang_format_from_darwin_cache(self.path)
-                else:
-                    print("ERROR: clang-format.py does not support downloading clang-format " +
-                        " on this platform, please install clang-format " + CLANG_FORMAT_VERSION)
+                print(
+                    "ERROR:clang-format not found in $PATH, please install clang-format " +
+                    CLANG_FORMAT_VERSION)
 
         # Validate we have the correct version
         # We only can fail here if the user specified a clang-format binary and it is the wrong
@@ -266,15 +214,16 @@ class ClangFormat(object):
         if CLANG_FORMAT_VERSION in cf_version:
             return True
 
-        print("WARNING: clang-format found in path, but incorrect version found at " +
-                self.path + " with version: " + cf_version)
+        print(
+            "WARNING: clang-format found in path, but incorrect version found at "
+            + self.path + " with version: " + cf_version)
 
         return False
 
     def _lint(self, file_name, print_diff):
         """Check the specified file has the correct format
         """
-        with open(file_name, 'rb') as original_text:
+        with open(file_name, 'rt') as original_text:
             original_file = original_text.read()
 
         # Get formatted file as clang-format would format the file
@@ -289,8 +238,9 @@ class ClangFormat(object):
                 # Take a lock to ensure diffs do not get mixed when printed to the screen
                 with self.print_lock:
                     print("ERROR: Found diff for " + file_name)
-                    print("To fix formatting errors, run %s --style=file -i %s" %
-                            (self.path, file_name))
+                    print(
+                        "To fix formatting errors, run %s --style=file -i %s" %
+                        (self.path, file_name))
                     for line in result:
                         print(line.rstrip())
 
@@ -310,7 +260,8 @@ class ClangFormat(object):
             return True
 
         # Update the file with clang-format
-        formatted = not subprocess.call([self.path, "--style=file", "-i", file_name])
+        formatted = not subprocess.call(
+            [self.path, "--style=file", "-i", file_name])
 
         # Version 3.8 generates files like foo.cpp~RF83372177.TMP when it formats foo.cpp
         # on Windows, we must clean these up
@@ -330,7 +281,7 @@ def parallel_process(items, func):
     except NotImplementedError:
         cpus = 1
 
-    task_queue = Queue.Queue()
+    task_queue = queue.Queue()
 
     # Use a list so that worker function will capture this variable
     pp_event = threading.Event()
@@ -343,7 +294,7 @@ def parallel_process(items, func):
         while not pp_event.is_set():
             try:
                 item = task_queue.get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 # if the queue is empty, exit the worker thread
                 pp_event.set()
                 return
@@ -387,30 +338,31 @@ def parallel_process(items, func):
 
     return pp_result[0]
 
+
 def get_base_dir():
     """Get the base directory for mongo repo.
         This script assumes that it is running in buildscripts/, and uses
         that to find the base directory.
     """
     try:
-        return subprocess.check_output(['git', 'rev-parse', '--show-toplevel']).rstrip()
+        return subprocess.check_output(['git', 'rev-parse',
+                                        '--show-toplevel']).rstrip().decode('utf-8')
     except:
         # We are not in a valid git directory. Use the script path instead.
         return os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
 
 def get_repos():
     """Get a list of Repos to check clang-format for
     """
     base_dir = get_base_dir()
 
-    # Get a list of modules
-    # TODO: how do we filter rocks, does it matter?
-    mongo_modules = moduleconfig.discover_module_directories(
-                        os.path.join(base_dir, MODULE_DIR), None)
+    # # Get a list of modules
+    # # TODO: get a list of GNU Radio modules if necessary (GNU Radio is a single-git repo)
 
-    paths = [os.path.join(base_dir, MODULE_DIR, m) for m in mongo_modules]
+    # paths = [os.path.join(base_dir, MODULE_DIR, m) for m in gnuradio_modules]
 
-    paths.append(base_dir)
+    paths = [base_dir]
 
     return [Repo(p) for p in paths]
 
@@ -419,6 +371,7 @@ class Repo(object):
     """Class encapsulates all knowledge about a git repository, and its metadata
         to run clang-format.
     """
+
     def __init__(self, path):
         self.path = path
 
@@ -430,8 +383,10 @@ class Repo(object):
         # These two flags are the equivalent of -C in newer versions of Git
         # but we use these to support versions pre 1.8.5 but it depends on the command
         # and what the current directory is
-        return callo(['git', '--git-dir', os.path.join(self.path, ".git"),
-                            '--work-tree', self.path] + args)
+        return callo([
+            'git', '--git-dir',
+            os.path.join(self.path, ".git"), '--work-tree', self.path
+        ] + args)
 
     def _callgit(self, args):
         """Call git for this repository without capturing output
@@ -440,8 +395,10 @@ class Repo(object):
         # These two flags are the equivalent of -C in newer versions of Git
         # but we use these to support versions pre 1.8.5 but it depends on the command
         # and what the current directory is
-        return subprocess.call(['git', '--git-dir', os.path.join(self.path, ".git"),
-                                '--work-tree', self.path] + args)
+        return subprocess.call([
+            'git', '--git-dir',
+            os.path.join(self.path, ".git"), '--work-tree', self.path
+        ] + args)
 
     def _get_local_dir(self, path):
         """Get a directory path relative to the git root directory
@@ -457,12 +414,15 @@ class Repo(object):
         """
         if candidates is not None and len(candidates) > 0:
             candidates = [self._get_local_dir(f) for f in candidates]
-            valid_files = list(set(candidates).intersection(self.get_candidate_files()))
+            valid_files = list(
+                set(candidates).intersection(self.get_candidate_files()))
         else:
             valid_files = list(self.get_candidate_files())
 
         # Get the full file name here
-        valid_files = [os.path.normpath(os.path.join(self.root, f)) for f in valid_files]
+        valid_files = [
+            os.path.normpath(os.path.join(self.root, f)) for f in valid_files
+        ]
 
         return valid_files
 
@@ -485,13 +445,16 @@ class Repo(object):
 
         # This allows us to pick all the interesting files
         # in the mongo and mongo-enterprise repos
-        file_list = [line.rstrip()
-                for line in gito.splitlines()
-                    if (line.startswith("jstests") or line.startswith("src"))
-                        and not line.startswith("src/third_party")]
+        file_list = [
+            line.rstrip() for line in gito.splitlines()
+            # TODO: exclude directories if needed
+            # if (line.startswith("jstests") or line.startswith("src"))
+            # and not line.startswith("src/third_party")
+        ]
 
-        files_match = re.compile('\\.(h|cpp|js)$')
+        files_match = re.compile('\\.(h|cc|c)$')
 
+        print(file_list)
         file_list = [a for a in file_list if files_match.search(a)]
 
         return file_list
@@ -514,7 +477,9 @@ class Repo(object):
         valid_files = list(self.get_working_tree_candidate_files())
 
         # Get the full file name here
-        valid_files = [os.path.normpath(os.path.join(self.root, f)) for f in valid_files]
+        valid_files = [
+            os.path.normpath(os.path.join(self.root, f)) for f in valid_files
+        ]
 
         return valid_files
 
@@ -528,7 +493,8 @@ class Repo(object):
         """Is the specified parent hash an ancestor of child hash?
         """
         # merge base returns 0 if parent is an ancestor of child
-        return not self._callgit(["merge-base", "--is-ancestor", parent, child])
+        return not self._callgit(
+            ["merge-base", "--is-ancestor", parent, child])
 
     def is_commit(self, sha1):
         """Is the specified hash a valid git commit?
@@ -604,10 +570,12 @@ class Repo(object):
         """
         return self._callgito(["show"] + command)
 
+
 def get_list_from_lines(lines):
     """"Convert a string containing a series of lines into a list of strings
     """
     return [line.rstrip() for line in lines.splitlines()]
+
 
 def get_files_to_check_working_tree():
     """Get a list of files to check form the working tree.
@@ -615,9 +583,12 @@ def get_files_to_check_working_tree():
     """
     repos = get_repos()
 
-    valid_files = list(itertools.chain.from_iterable([r.get_working_tree_candidates() for r in repos]))
+    valid_files = list(
+        itertools.chain.from_iterable(
+            [r.get_working_tree_candidates() for r in repos]))
 
     return valid_files
+
 
 def get_files_to_check():
     """Get a list of files that need to be checked
@@ -625,9 +596,11 @@ def get_files_to_check():
     """
     repos = get_repos()
 
-    valid_files = list(itertools.chain.from_iterable([r.get_candidates(None) for r in repos]))
+    valid_files = list(
+        itertools.chain.from_iterable([r.get_candidates(None) for r in repos]))
 
     return valid_files
+
 
 def get_files_to_check_from_patch(patches):
     """Take a patch file generated by git diff, and scan the patch for a list of files to check.
@@ -635,36 +608,45 @@ def get_files_to_check_from_patch(patches):
     candidates = []
 
     # Get a list of candidate_files
-    check = re.compile(r"^diff --git a\/([a-z\/\.\-_0-9]+) b\/[a-z\/\.\-_0-9]+")
+    check = re.compile(
+        r"^diff --git a\/([a-z\/\.\-_0-9]+) b\/[a-z\/\.\-_0-9]+")
 
     lines = []
     for patch in patches:
         with open(patch, "rb") as infile:
             lines += infile.readlines()
 
-    candidates = [check.match(line).group(1) for line in lines if check.match(line)]
+    candidates = [
+        check.match(line).group(1) for line in lines if check.match(line)
+    ]
 
     repos = get_repos()
 
-    valid_files = list(itertools.chain.from_iterable([r.get_candidates(candidates) for r in repos]))
+    valid_files = list(
+        itertools.chain.from_iterable(
+            [r.get_candidates(candidates) for r in repos]))
 
     return valid_files
+
 
 def _get_build_dir():
     """Get the location of the scons' build directory in case we need to download clang-format
     """
     return os.path.join(get_base_dir(), "build")
 
+
 def _lint_files(clang_format, files):
     """Lint a list of files with clang-format
     """
     clang_format = ClangFormat(clang_format, _get_build_dir())
 
-    lint_clean = parallel_process([os.path.abspath(f) for f in files], clang_format.lint)
+    lint_clean = parallel_process([os.path.abspath(f) for f in files],
+                                  clang_format.lint)
 
     if not lint_clean:
         print("ERROR: Code Style does not match coding style")
         sys.exit(1)
+
 
 def lint_patch(clang_format, infile):
     """Lint patch command entry point
@@ -675,6 +657,7 @@ def lint_patch(clang_format, infile):
     if files:
         _lint_files(clang_format, files)
 
+
 def lint(clang_format):
     """Lint files command entry point
     """
@@ -683,6 +666,7 @@ def lint(clang_format):
     _lint_files(clang_format, files)
 
     return True
+
 
 def lint_all(clang_format):
     """Lint files command entry point based on working tree
@@ -693,16 +677,19 @@ def lint_all(clang_format):
 
     return True
 
+
 def _format_files(clang_format, files):
     """Format a list of files with clang-format
     """
     clang_format = ClangFormat(clang_format, _get_build_dir())
 
-    format_clean = parallel_process([os.path.abspath(f) for f in files], clang_format.format)
+    format_clean = parallel_process([os.path.abspath(f) for f in files],
+                                    clang_format.format)
 
     if not format_clean:
         print("ERROR: failed to format files")
         sys.exit(1)
+
 
 def format_func(clang_format):
     """Format files command entry point
@@ -711,7 +698,9 @@ def format_func(clang_format):
 
     _format_files(clang_format, files)
 
-def reformat_branch(clang_format, commit_prior_to_reformat, commit_after_reformat):
+
+def reformat_branch(clang_format, commit_prior_to_reformat,
+                    commit_after_reformat):
     """Reformat a branch made before a clang-format run
     """
     clang_format = ClangFormat(clang_format, _get_build_dir())
@@ -726,44 +715,61 @@ def reformat_branch(clang_format, commit_prior_to_reformat, commit_after_reforma
 
     # Validate that user passes valid commits
     if not repo.is_commit(commit_prior_to_reformat):
-        raise ValueError("Commit Prior to Reformat '%s' is not a valid commit in this repo" %
-                commit_prior_to_reformat)
+        raise ValueError(
+            "Commit Prior to Reformat '%s' is not a valid commit in this repo"
+            % commit_prior_to_reformat)
 
     if not repo.is_commit(commit_after_reformat):
-        raise ValueError("Commit After Reformat '%s' is not a valid commit in this repo" %
-                commit_after_reformat)
+        raise ValueError(
+            "Commit After Reformat '%s' is not a valid commit in this repo" %
+            commit_after_reformat)
 
     if not repo.is_ancestor(commit_prior_to_reformat, commit_after_reformat):
-        raise ValueError(("Commit Prior to Reformat '%s' is not a valid ancestor of Commit After" +
-                " Reformat '%s' in this repo") % (commit_prior_to_reformat, commit_after_reformat))
+        raise ValueError((
+            "Commit Prior to Reformat '%s' is not a valid ancestor of Commit After"
+            + " Reformat '%s' in this repo") % (commit_prior_to_reformat,
+                                                commit_after_reformat))
 
     # Validate the user is on a local branch that has the right merge base
     if repo.is_detached():
-        raise ValueError("You must not run this script in a detached HEAD state")
+        raise ValueError(
+            "You must not run this script in a detached HEAD state")
 
     # Validate the user has no pending changes
     if repo.is_working_tree_dirty():
-        raise ValueError("Your working tree has pending changes. You must have a clean working tree before proceeding.")
+        raise ValueError(
+            "Your working tree has pending changes. You must have a clean working tree before proceeding."
+        )
 
     merge_base = repo.get_merge_base(commit_prior_to_reformat)
 
     if not merge_base == commit_prior_to_reformat:
-        raise ValueError("Please rebase to '%s' and resolve all conflicts before running this script" % (commit_prior_to_reformat))
+        raise ValueError(
+            "Please rebase to '%s' and resolve all conflicts before running this script"
+            % (commit_prior_to_reformat))
 
     # We assume the target branch is master, it could be a different branch if needed for testing
     merge_base = repo.get_merge_base("master")
 
     if not merge_base == commit_prior_to_reformat:
-        raise ValueError("This branch appears to already have advanced too far through the merge process")
+        raise ValueError(
+            "This branch appears to already have advanced too far through the merge process"
+        )
 
     # Everything looks good so lets start going through all the commits
     branch_name = repo.get_branch_name()
     new_branch = "%s-reformatted" % branch_name
 
     if repo.does_branch_exist(new_branch):
-        raise ValueError("The branch '%s' already exists. Please delete the branch '%s', or rename the current branch." % (new_branch, new_branch))
+        raise ValueError(
+            "The branch '%s' already exists. Please delete the branch '%s', or rename the current branch."
+            % (new_branch, new_branch))
 
-    commits = get_list_from_lines(repo.log(["--reverse", "--pretty=format:%H", "%s..HEAD" % commit_prior_to_reformat]))
+    commits = get_list_from_lines(
+        repo.log([
+            "--reverse", "--pretty=format:%H",
+            "%s..HEAD" % commit_prior_to_reformat
+        ]))
 
     previous_commit_base = commit_after_reformat
 
@@ -783,20 +789,22 @@ def reformat_branch(clang_format, commit_prior_to_reformat, commit_after_reforma
 
             # Format each file needed if it was not deleted
             if not os.path.exists(commit_file):
-                print("Skipping file '%s' since it has been deleted in commit '%s'" % (
-                        commit_file, commit_hash))
+                print(
+                    "Skipping file '%s' since it has been deleted in commit '%s'"
+                    % (commit_file, commit_hash))
                 deleted_files.append(commit_file)
                 continue
 
             if files_match.search(commit_file):
                 clang_format.format(commit_file)
             else:
-                print("Skipping file '%s' since it is not a file clang_format should format" %
-                        commit_file)
+                print(
+                    "Skipping file '%s' since it is not a file clang_format should format"
+                    % commit_file)
 
         # Check if anything needed reformatting, and if so amend the commit
         if not repo.is_working_tree_dirty():
-            print ("Commit %s needed no reformatting" % commit_hash)
+            print("Commit %s needed no reformatting" % commit_hash)
         else:
             repo.commit(["--all", "--amend", "--no-edit"])
 
@@ -808,8 +816,10 @@ def reformat_branch(clang_format, commit_prior_to_reformat, commit_after_reforma
         repo.checkout(["--quiet", previous_commit_base])
 
         # Copy each file from the reformatted commit on top of the post reformat
-        diff_files = get_list_from_lines(repo.diff(["%s~..%s" % (previous_commit, previous_commit),
-            "--name-only"]))
+        diff_files = get_list_from_lines(
+            repo.diff([
+                "%s~..%s" % (previous_commit, previous_commit), "--name-only"
+            ]))
 
         for diff_file in diff_files:
             # If the file was deleted in the commit we are reformatting, we need to delete it again
@@ -838,7 +848,9 @@ def reformat_branch(clang_format, commit_prior_to_reformat, commit_after_reforma
     repo.checkout(["-b", new_branch])
 
     print("reformat-branch is done running.\n")
-    print("A copy of your branch has been made named '%s', and formatted with clang-format.\n" % new_branch)
+    print(
+        "A copy of your branch has been made named '%s', and formatted with clang-format.\n"
+        % new_branch)
     print("The original branch has been left unchanged.")
     print("The next step is to rebase the new branch on 'master'.")
 
@@ -846,13 +858,17 @@ def reformat_branch(clang_format, commit_prior_to_reformat, commit_after_reforma
 def usage():
     """Print usage
     """
-    print("clang-format.py supports 5 commands [ lint, lint-all, lint-patch, format, reformat-branch].")
+    print(
+        "clang-format.py supports 5 commands [ lint, lint-all, lint-patch, format, reformat-branch]."
+    )
+
 
 def main():
     """Main entry point
     """
     parser = OptionParser()
-    parser.add_option("-c", "--clang-format", type="string", dest="clang_format")
+    parser.add_option(
+        "-c", "--clang-format", type="string", dest="clang_format")
 
     (options, args) = parser.parse_args(args=sys.argv)
 
@@ -870,7 +886,9 @@ def main():
         elif command == "reformat-branch":
 
             if len(args) < 3:
-                print("ERROR: reformat-branch takes two parameters: commit_prior_to_reformat commit_after_reformat")
+                print(
+                    "ERROR: reformat-branch takes two parameters: commit_prior_to_reformat commit_after_reformat"
+                )
                 return
 
             reformat_branch(options.clang_format, args[2], args[3])
@@ -878,6 +896,7 @@ def main():
             usage()
     else:
         usage()
+
 
 if __name__ == "__main__":
     main()
