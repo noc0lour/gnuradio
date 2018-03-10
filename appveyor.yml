@@ -1,0 +1,63 @@
+version: "{build}"
+
+configuration: Release
+platform: x64
+
+init:
+  - ps: |
+      If ($env:Platform -Match "x86") {
+        $env:ARCHITECTURE="32"
+      } Else {
+        $env:ARCHITECTURE="64"
+        $env:GENERATOR_SUFFIX=" Win64"
+      }
+
+      $env:LIB_ARCHITECTURE="lib$($env:ARCHITECTURE)"
+      $env:WINDOWS_ARCHITECTURE="win$($env:ARCHITECTURE)"
+
+      $env:BOOST_ROOT="C:/Libraries/boost_$($env:BOOST_VER)"
+      $env:BOOST_INCLUDEDIR="$($env:BOOST_ROOT)"
+      $env:BOOST_LIBRARYDIR="$($env:BOOST_ROOT)/$($env:LIB_ARCHITECTURE)-msvc-$($env:VISUAL_STUDIO_VERSION)"
+
+      $env:LOG4CPP_ROOT="C:/Libraries/log4cpp-1.1.1dev-win64/"
+
+      $env:GENERATOR="$($env:GENERATOR)$($env:GENERATOR_SUFFIX)"
+
+
+clone_script:
+  - ps: |
+      git clone -q --branch="${env:APPVEYOR_REPO_BRANCH}" "https://github.com/${env:APPVEYOR_REPO_NAME}.git" "${env:APPVEYOR_BUILD_FOLDER}"
+      cd ${env:APPVEYOR_BUILD_FOLDER}
+      git checkout -qf ${env:APPVEYOR_REPO_COMMIT}
+      git submodule -q update --init --recursive
+
+environment:
+  matrix:
+    - GENERATOR: "Visual Studio 14 2015"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      VISUAL_STUDIO_VERSION: "14.0"
+      BOOST_VER: 1_59_0
+    - GENERATOR: "Visual Studio 15 2017"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      VISUAL_STUDIO_VERSION: "15.0"
+      BOOST_VER: 1_66_0
+
+install:
+  - ps: |
+      choco install swig PyQt5
+      python -m pip install --upgrade pip
+      pip install mako six Cheetah lxml numpy
+
+      Start-FileDownload https://github.com/noc0lour/log4cpp/releases/download/v1.1.1dev/log4cpp-1.1.1dev-win64.zip log4cpp.zip
+      7z x -bd -oC:\Libraries log4cpp.zip
+
+before_build:
+  - ps: |
+      mkdir build
+      cd build
+      cmake --version
+  - cmd: cmake .. -G "%GENERATOR%"
+
+build_script:
+   - msbuild ALL_BUILD.vcxproj /m /verbosity:normal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+   - ps: ls ./
