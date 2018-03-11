@@ -4,6 +4,8 @@
 #  LOG4CPP_INCLUDE_DIR - where to find LOG4CPP.h, etc.
 #  LOG4CPP_LIBRARIES   - List of libraries when using LOG4CPP.
 #  LOG4CPP_FOUND       - True if LOG4CPP found.
+#
+#  env: LOG4CPP_ROOT        - Additional search root
 
 
 if (LOG4CPP_INCLUDE_DIR)
@@ -12,6 +14,7 @@ if (LOG4CPP_INCLUDE_DIR)
 endif ()
 
 find_path(LOG4CPP_INCLUDE_DIR log4cpp/Category.hh
+  "$ENV{LOG4CPP_ROOT}/include"
   /opt/local/include
   /usr/local/include
   /usr/include
@@ -20,7 +23,11 @@ find_path(LOG4CPP_INCLUDE_DIR log4cpp/Category.hh
 set(LOG4CPP_NAMES log4cpp)
 find_library(LOG4CPP_LIBRARY
   NAMES ${LOG4CPP_NAMES}
-  PATHS /usr/lib /usr/local/lib /opt/local/lib
+  PATHS
+  "$ENV{LOG4CPP_ROOT}/lib"
+  /usr/lib
+  /usr/local/lib
+  /opt/local/lib
 )
 
 
