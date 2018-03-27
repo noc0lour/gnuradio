@@ -52,6 +52,7 @@ install:
       7z x -bd -oC:\Libraries log4cpp.zip
 
 before_build:
+  - ps: ls ${env:BOOST_ROOT}
   - ps: |
       mkdir build
       cd build
