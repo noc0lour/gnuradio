@@ -34,6 +34,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef _MSC_VER
+#include <stddef.h>
+typedef ptrdiff_t ssize_t;
+#endif
+
 namespace gr {
   namespace blocks {
 
@@ -146,4 +151,3 @@ namespace gr {
 
   } /* namespace blocks */
 } /* namespace gr */
-

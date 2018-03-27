@@ -34,8 +34,10 @@
 #include <stdexcept>
 #include <stdio.h>
 
-#ifdef HAVE_IO_H
+#ifdef _MSC_VER
 #include <io.h>
+#include <stddef.h>
+typedef ptrdiff_t ssize_t;
 #endif
 
 namespace gr {

@@ -24,10 +24,6 @@
 #include "config.h"
 #endif
 
-#ifdef _MSC_VER
-#include <io.h>
-#endif
-
 #include "audio_registry.h"
 #include <portaudio_sink.h>
 #include <portaudio_impl.h>
@@ -38,9 +34,12 @@
 #include <unistd.h>
 #include <stdexcept>
 #include <string.h>
+
 #ifdef _MSC_VER
 #include <io.h>
-#endif 
+#include <stddef.h>
+typedef ptrdiff_t ssize_t;
+#endif
 
 namespace gr {
   namespace audio {
