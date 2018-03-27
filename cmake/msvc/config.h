@@ -12,11 +12,4 @@
 #  define inline __inline
 #endif
 
-////////////////////////////////////////////////////////////////////////
-// random and srandom
-////////////////////////////////////////////////////////////////////////
-#include <stdlib.h>
-static inline long int random (void) { return rand(); }
-static inline void srandom (unsigned int seed) { srand(seed); }
-
 #endif // _MSC_CONFIG_H_ ]
