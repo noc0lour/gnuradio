@@ -28,6 +28,11 @@
 #include <boost/format.hpp>
 #include <gnuradio/thread/thread.h>
 
+#ifdef _MSC_VER
+#include <stddef.h>
+typedef ptrdiff_t ssize_t;
+#endif
+
 namespace gr {
   namespace blocks {
 
