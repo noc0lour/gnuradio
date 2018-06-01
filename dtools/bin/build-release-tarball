@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+set -eu
+
+usage() {
+    echo "Usage: $0 <GNURADIO_VERSION> [--sign] [--signkey SIGN_KEY] [-h|-?|--help]" >&2
+    exit 1
+}
+
+sign=""
+sign_key=""
+
+version="$1"
+shift
+
+while :; do
+    case $1 in
+        -h|-\?|--help)   # Call a "usage" function to display a synopsis, then exit.
+            usage
+            exit
+            ;;
+        --signkey)       # Takes an option argument, ensuring it has been specified.
+            if [ -n "${2:-}" ]; then
+                sign_key=$2
+                shift
+            else
+                printf 'ERROR: "--signkey" requires a non-empty option argument.\n' >&2
+                exit 1
+            fi
+            ;;
+        --signkey=?*)
+            sign_key=${1#*=} # Delete everything up to "=" and assign the remainder.
+            ;;
+        --signkey=)         # Handle the case of an empty --signkey=
+            printf 'ERROR: "--signkey" requires a non-empty option argument.\n' >&2
+            exit 1
+            ;;
+        -s|--sign)
+            sign=--sign
+            ;;
+        --)              # End of all options.
+            shift
+            break
+            ;;
+        -?*)
+            printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+            ;;
+        *)               # Default case: If no more options then break out of the loop.
+            break
+    esac
+
+    shift
+    if [ ! -n "${1:-}" ]; then
+       break
+    fi
+done
+
+prefix="gnuradio-$version"
+
+set -x
+
+TMPDIR=$(mktemp -d)
+TARBALL=$prefix.tar
+TARBALLS="${TARBALL}.xz ${TARBALL}.gz"
+BASEDIR=$(pwd)
+
+git archive -o "${TMPDIR}/${TARBALL}" "--prefix=$prefix/" "v${version}"
+cd "$TMPDIR"
+
+xz -k -T 0 $TARBALL
+gzip -k $TARBALL
+
+for tarball in $TARBALLS
+do
+    if [ "x" != "${sign}x" ]; then
+        gpg_args="--personal-digest-preferences SHA512"
+        if [ "x" != "${sign_key}x" ]; then
+            gpg_args="$gpg_args --default-key ${sign_key}"
+        fi
+        gpg2 $gpg_args --output "$tarball".asc --detach-sign  "$tarball"
+    fi
+done
+
+rm $TARBALL
+echo "Please upload artifacts from ${TMPDIR} to their destination"
