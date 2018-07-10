@@ -21,6 +21,14 @@ include(GrMiscUtils)
 GR_CHECK_HDR_N_DEF(sys/resource.h HAVE_SYS_RESOURCE_H)
 
 ########################################################################
+# Look for libunwind
+########################################################################
+find_package(libunwind)
+if(libunwind_FOUND)
+    add_definitions(-DHAVE_LIBUNWIND)
+endif(libunwind_FOUND)
+
+########################################################################
 # Handle the generated constants
 ########################################################################
 execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
@@ -48,9 +56,10 @@ list(APPEND gnuradio_runtime_sources ${CMAKE_CURRENT_BINARY_DIR}/constants.cc)
 ########################################################################
 include_directories(${GNURADIO_RUNTIME_INCLUDE_DIRS}
                     ${CMAKE_CURRENT_SOURCE_DIR}
-            ${VOLK_INCLUDE_DIRS}
+                    ${VOLK_INCLUDE_DIRS}
                     ${Boost_INCLUDE_DIRS}
                     ${MPLIB_INCLUDE_DIRS}
+                    ${libunwind_INCLUDE_DIRS}
 )
 
 if(ENABLE_CTRLPORT_THRIFT)
@@ -106,6 +115,7 @@ list(APPEND gnuradio_runtime_sources
   sync_interpolator.cc
   sys_paths.cc
   tagged_stream_block.cc
+  terminate_handler.cc
   test.cc
   top_block.cc
   top_block_impl.cc
@@ -126,6 +136,7 @@ list(APPEND gnuradio_runtime_libs
     ${Boost_LIBRARIES}
     ${LOG4CPP_LIBRARIES}
     ${MPLIB_LIBRARIES}
+    ${libunwind_LIBRARIES}
 )
 
 #Add libraries for winsock2.h on Windows

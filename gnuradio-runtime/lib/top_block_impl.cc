@@ -27,6 +27,7 @@
 #include "top_block_impl.h"
 #include "flat_flowgraph.h"
 #include "scheduler_tpb.h"
+#include "terminate_handler.h"
 #include <gnuradio/top_block.h>
 #include <gnuradio/prefs.h>
 
@@ -81,6 +82,8 @@ namespace gr {
     : d_owner(owner), d_ffg(),
       d_state(IDLE), d_lock_count(0), d_retry_wait(false), d_catch_exceptions(catch_exceptions)
   {
+    install_terminate_handler();
+
   }
 
   top_block_impl::~top_block_impl()
