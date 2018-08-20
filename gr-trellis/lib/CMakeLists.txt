@@ -1,4 +1,4 @@
-# Copyright 2012,2014 Free Software Foundation, Inc.
+# Copyright 2012,2014,2018 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -34,36 +34,29 @@ if(ENABLE_GR_CTRLPORT)
   ADD_DEFINITIONS(-DGR_CTRLPORT)
 endif(ENABLE_GR_CTRLPORT)
 
-#######################################################################
-# Invoke macro to generate various sources and headers
-########################################################################
-include(GrMiscUtils)
-GR_EXPAND_X_CC_H(trellis encoder_XX_impl                bb bs bi ss si ii)
-GR_EXPAND_X_CC_H(trellis sccc_encoder_XX_impl           bb bs bi ss si ii)
-GR_EXPAND_X_CC_H(trellis pccc_encoder_XX_impl           bb bs bi ss si ii)
-GR_EXPAND_X_CC_H(trellis metrics_X_impl                 s i f c)
-GR_EXPAND_X_CC_H(trellis viterbi_X_impl                 b s i)
-GR_EXPAND_X_CC_H(trellis viterbi_combined_XX_impl       sb ss si ib is ii fb fs fi cb cs ci)
-GR_EXPAND_X_CC_H(trellis sccc_decoder_X_impl            b s i)
-GR_EXPAND_X_CC_H(trellis sccc_decoder_combined_XX_impl  fb fs fi cb cs ci)
-GR_EXPAND_X_CC_H(trellis pccc_decoder_X_impl            b s i)
-GR_EXPAND_X_CC_H(trellis pccc_decoder_combined_XX_impl  fb fs fi cb cs ci)
-
 ########################################################################
 # Setup library
 ########################################################################
 list(APPEND trellis_sources
-    ${generated_sources}
     base.cc
     calc_metric.cc
     core_algorithms.cc
+    encoder_impl.cc
     fsm.cc
     interleaver.cc
     quicksort_index.cc
     constellation_metrics_cf_impl.cc
+    metrics_impl.cc
+    pccc_decoder_blk_impl.cc
+    pccc_encoder_impl.cc
+    pccc_decoder_combined_blk_impl.cc
     permutation_impl.cc
+    sccc_decoder_blk_impl.cc
+    sccc_decoder_combined_blk_impl.cc
+    sccc_encoder_impl.cc
     siso_f_impl.cc
     siso_combined_f_impl.cc
+    viterbi_impl.cc
 )
 
 list(APPEND trellis_libs

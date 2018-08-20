@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2004,2010,2012 Free Software Foundation, Inc.
+ * Copyright 2004,2010,2012,2018 Free Software Foundation, Inc.
  *
  * This file is part of GNU Radio
  *
@@ -20,36 +20,34 @@
  * Boston, MA 02110-1301, USA.
  */
 
-// @WARNING@
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include "@NAME@.h"
+#include "viterbi_combined_impl.h"
 #include <gnuradio/io_signature.h>
 #include <iostream>
 
 namespace gr {
   namespace trellis {
 
-    @BASE_NAME@::sptr
-    @BASE_NAME@::make(const fsm &FSM, int K,
+    viterbi_combined<IN_T,OUT_T>::sptr
+    viterbi_combined<IN_T,OUT_T>::make(const fsm &FSM, int K,
 		      int S0, int SK, int D,
-		      const std::vector<@I_TYPE@> &TABLE,
+		      const std::vector<IN_T> &TABLE,
 		      digital::trellis_metric_type_t TYPE)
     {
       return gnuradio::get_initial_sptr
-	(new @NAME@(FSM, K, S0, SK, D, TABLE,TYPE));
+	(new viterbi_combined_impl<IN_T,OUT_T>(FSM, K, S0, SK, D, TABLE,TYPE));
     }
 
-    @IMPL_NAME@::@IMPL_NAME@(const fsm &FSM, int K,
+    viterbi_combined_impl<IN_T,OUT_T>::viterbi_combined_impl(const fsm &FSM, int K,
 			     int S0, int SK, int D,
-			     const std::vector<@I_TYPE@> &TABLE,
+			     const std::vector<IN_T> &TABLE,
 			     digital::trellis_metric_type_t TYPE)
-    : block("@BASE_NAME@",
-	       io_signature::make(1, -1, sizeof(@I_TYPE@)),
-	       io_signature::make(1, -1, sizeof(@O_TYPE@))),
+    : block("viterbi_combined<IN_T,OUT_T>",
+	       io_signature::make(1, -1, sizeof(IN_T)),
+	       io_signature::make(1, -1, sizeof(OUT_T))),
       d_FSM(FSM), d_K(K), d_S0(S0), d_SK(SK), d_D(D),
       d_TABLE(TABLE), d_TYPE(TYPE)//,
       //d_trace(FSM.S()*K)
@@ -59,7 +57,7 @@ namespace gr {
     }
 
     void
-    @IMPL_NAME@::set_K(int K)
+    viterbi_combined_impl<IN_T,OUT_T>::set_K(int K)
     {
       gr::thread::scoped_lock guard(d_setlock);
       d_K = K;
@@ -67,51 +65,51 @@ namespace gr {
     }
 
     void
-    @IMPL_NAME@::set_D(int D)
+    viterbi_combined_impl<IN_T,OUT_T>::set_D(int D)
     {
       gr::thread::scoped_lock guard(d_setlock);
       d_D = D;
       set_relative_rate(1.0 / ((double)d_D));
     }
-   
-    void @IMPL_NAME@::set_FSM(const fsm &FSM)
+
+    void viterbi_combined_impl<IN_T,OUT_T>::set_FSM(const fsm &FSM)
     {
       gr::thread::scoped_lock guard(d_setlock);
       d_FSM = FSM;
     }
 
-    void @IMPL_NAME@::set_S0(int S0)
+    void viterbi_combined_impl<IN_T,OUT_T>::set_S0(int S0)
     {
       gr::thread::scoped_lock guard(d_setlock);
       d_S0 = S0;
     }
 
-    void @IMPL_NAME@::set_SK(int SK)
+    void viterbi_combined_impl<IN_T,OUT_T>::set_SK(int SK)
     {
       gr::thread::scoped_lock guard(d_setlock);
       d_SK = SK;
     }
 
     void
-    @IMPL_NAME@::set_TYPE(digital::trellis_metric_type_t type)
+    viterbi_combined_impl<IN_T,OUT_T>::set_TYPE(digital::trellis_metric_type_t type)
     {
       gr::thread::scoped_lock guard(d_setlock);
       d_TYPE = type;
     }
 
     void
-    @IMPL_NAME@::set_TABLE(const std::vector<@I_TYPE@> &table)
+    viterbi_combined_impl<IN_T,OUT_T>::set_TABLE(const std::vector<IN_T> &table)
     {
       gr::thread::scoped_lock guard(d_setlock);
       d_TABLE = table;
     }
 
-    @IMPL_NAME@::~@IMPL_NAME@()
+    viterbi_combined_impl<IN_T,OUT_T>::~viterbi_combined_impl()
     {
     }
 
     void
-    @IMPL_NAME@::forecast(int noutput_items,
+    viterbi_combined_impl<IN_T,OUT_T>::forecast(int noutput_items,
 			  gr_vector_int &ninput_items_required)
     {
       int input_required =  d_D * noutput_items;
@@ -122,7 +120,7 @@ namespace gr {
     }
 
     int
-    @IMPL_NAME@::general_work(int noutput_items,
+    viterbi_combined_impl<IN_T,OUT_T>::general_work(int noutput_items,
 			      gr_vector_int &ninput_items,
 			      gr_vector_const_void_star &input_items,
 			      gr_vector_void_star &output_items)
@@ -132,8 +130,8 @@ namespace gr {
       int nblocks = noutput_items / d_K;
 
       for(int m=0;m<nstreams;m++) {
-	const @I_TYPE@ *in = (const @I_TYPE@*)input_items[m];
-	@O_TYPE@ *out = (@O_TYPE@*)output_items[m];
+	const IN_T *in = (const IN_T*)input_items[m];
+	OUT_T *out = (OUT_T*)output_items[m];
 
 	for(int n=0;n<nblocks;n++) {
 	  viterbi_algorithm_combined(d_FSM.I(), d_FSM.S(), d_FSM.O(),
@@ -148,6 +146,19 @@ namespace gr {
       return noutput_items;
     }
 
+    template class viterbi_combined<std::int16_t, std::uint8_t>;
+    template class viterbi_combined<std::int16_t, std::int16_t>;
+    template class viterbi_combined<std::int16_t, std::int32_t>;
+    template class viterbi_combined<std::int32_t, std::uint8_t>;
+    template class viterbi_combined<std::int32_t, std::int16_t>;
+    template class viterbi_combined<std::int32_t, std::int32_t>;
+    template class viterbi_combined<float, std::uint8_t>;
+    template class viterbi_combined<float, std::int16_t>;
+    template class viterbi_combined<float, std::int32_t>;
+    template class viterbi_combined<gr_complex, std::uint8_t>;
+    template class viterbi_combined<gr_complex, std::int16_t>;
+    template class viterbi_combined<gr_complex, std::int32_t>;
+
+
   } /* namespace trellis */
 } /* namespace gr */
-
