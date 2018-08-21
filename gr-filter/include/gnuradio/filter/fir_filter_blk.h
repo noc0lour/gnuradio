@@ -20,8 +20,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef FIR_FILTER_H
-#define	FIR_FILTER_H
+#ifndef FIR_FILTER_BLK_H
+#define	FIR_FILTER_BLK_H
 
 #include <gnuradio/filter/api.h>
 #include <gnuradio/sync_decimator.h>
@@ -35,7 +35,7 @@ namespace gr {
      * \ingroup filter_blk
      *
      * \details
-     * The fir_filter_XXX blocks create finite impulse response
+     * The fir_filter_blk_XXX blocks create finite impulse response
      * (FIR) filters that perform the convolution in the time
      * domain:
      *
@@ -55,11 +55,11 @@ namespace gr {
      * decimation.
      */
     template <class IN_T, class OUT_T, class TAP_T>
-    class FILTER_API fir_filter : virtual public sync_decimator
+    class FILTER_API fir_filter_blk : virtual public sync_decimator
     {
     public:
 
-      typedef boost::shared_ptr< fir_filter<IN_T,OUT_T,TAP_T> > sptr;
+      typedef boost::shared_ptr< fir_filter_blk<IN_T,OUT_T,TAP_T> > sptr;
 
       /*!
        * \brief FIR filter with IN_T input, OUT_T output, and TAP_T taps
@@ -74,14 +74,14 @@ namespace gr {
       virtual std::vector<TAP_T> taps() const = 0;
     };
 
-    typedef fir_filter<gr_complex, gr_complex, gr_complex> fir_filter_ccc;
-    typedef fir_filter<gr_complex, gr_complex, float> fir_filter_ccf;
-    typedef fir_filter<float, gr_complex, gr_complex> fir_filter_fcc;
-    typedef fir_filter<float, float, float> fir_filter_fff;
-    typedef fir_filter<float, std::int16_t, float> fir_filter_fsf;
-    typedef fir_filter<std::int16_t, gr_complex, gr_complex> fir_filter_scc;
+    typedef fir_filter_blk<gr_complex, gr_complex, gr_complex> fir_filter_ccc;
+    typedef fir_filter_blk<gr_complex, gr_complex, float> fir_filter_ccf;
+    typedef fir_filter_blk<float, gr_complex, gr_complex> fir_filter_fcc;
+    typedef fir_filter_blk<float, float, float> fir_filter_fff;
+    typedef fir_filter_blk<float, std::int16_t, float> fir_filter_fsf;
+    typedef fir_filter_blk<std::int16_t, gr_complex, gr_complex> fir_filter_scc;
 
   } /* namespace filter */
 } /* namespace gr */
 
-#endif /* FIR_FILTER_H */
+#endif /* FIR_FILTER_BLK_H */
