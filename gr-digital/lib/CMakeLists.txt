@@ -150,7 +150,6 @@ GR_LIBRARY_FOO(gnuradio-digital)
 
 add_dependencies(
     gnuradio-digital
-    digital_generated_includes
     digital_generated_swigs
     gnuradio-runtime
     gnuradio-filter
@@ -173,7 +172,6 @@ if(ENABLE_STATIC_LIBS)
   add_library(gnuradio-digital_static STATIC ${digital_sources})
 
   add_dependencies(gnuradio-digital_static
-    digital_generated_includes
     gnuradio-runtime_static
     gnuradio-filter_static
     gnuradio-analog_static
