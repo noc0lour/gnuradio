@@ -57,6 +57,7 @@ list(APPEND trellis_sources
     siso_f_impl.cc
     siso_combined_f_impl.cc
     viterbi_impl.cc
+    viterbi_combined_impl.cc
 )
 
 list(APPEND trellis_libs
@@ -83,7 +84,7 @@ add_library(gnuradio-trellis SHARED ${trellis_sources})
 target_link_libraries(gnuradio-trellis ${trellis_libs})
 GR_LIBRARY_FOO(gnuradio-trellis)
 add_dependencies(gnuradio-trellis
-  trellis_generated_includes trellis_generated_swigs
+  trellis_generated_swigs
   gnuradio-runtime gnuradio-digital)
 
 if(ENABLE_STATIC_LIBS)
@@ -101,7 +102,7 @@ if(ENABLE_STATIC_LIBS)
   add_library(gnuradio-trellis_static STATIC ${trellis_sources})
 
   add_dependencies(gnuradio-trellis_static
-    trellis_generated_includes trellis_generated_swigs
+    trellis_generated_swigs
     gnuradio-runtime_static gnuradio-digital_static
     )
 

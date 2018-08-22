@@ -40,12 +40,7 @@
 #include "gnuradio/trellis/siso_f.h"
 #include "gnuradio/trellis/encoder.h"
 #include "gnuradio/trellis/sccc_encoder.h"
-#include "gnuradio/trellis/pccc_encoder_bb.h"
-#include "gnuradio/trellis/pccc_encoder_bs.h"
-#include "gnuradio/trellis/pccc_encoder_bi.h"
-#include "gnuradio/trellis/pccc_encoder_ss.h"
-#include "gnuradio/trellis/pccc_encoder_si.h"
-#include "gnuradio/trellis/pccc_encoder_ii.h"
+#include "gnuradio/trellis/pccc_encoder.h"
 #include "gnuradio/trellis/metrics.h"
 %}
 
@@ -55,12 +50,7 @@
 %include "gnuradio/trellis/siso_f.h"
 %include "gnuradio/trellis/encoder.h"
 %include "gnuradio/trellis/sccc_encoder.h"
-%include "gnuradio/trellis/pccc_encoder_bb.h"
-%include "gnuradio/trellis/pccc_encoder_bs.h"
-%include "gnuradio/trellis/pccc_encoder_bi.h"
-%include "gnuradio/trellis/pccc_encoder_ss.h"
-%include "gnuradio/trellis/pccc_encoder_si.h"
-%include "gnuradio/trellis/pccc_encoder_ii.h"
+%include "gnuradio/trellis/pccc_encoder.h"
 %include "gnuradio/trellis/metrics.h"
 
 GR_SWIG_BLOCK_MAGIC2(trellis, constellation_metrics_cf);
@@ -79,12 +69,12 @@ GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, sccc_encoder_bi, sccc_encoder<std::uint8_t,st
 GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, sccc_encoder_ss, sccc_encoder<std::int16_t,std::int16_t>);
 GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, sccc_encoder_si, sccc_encoder<std::int16_t,std::int32_t>);
 GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, sccc_encoder_ii, sccc_encoder<std::int32_t,std::int32_t>);
-GR_SWIG_BLOCK_MAGIC2(trellis, pccc_encoder_bb);
-GR_SWIG_BLOCK_MAGIC2(trellis, pccc_encoder_bs);
-GR_SWIG_BLOCK_MAGIC2(trellis, pccc_encoder_bi);
-GR_SWIG_BLOCK_MAGIC2(trellis, pccc_encoder_ss);
-GR_SWIG_BLOCK_MAGIC2(trellis, pccc_encoder_si);
-GR_SWIG_BLOCK_MAGIC2(trellis, pccc_encoder_ii);
+GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, pccc_encoder_bb, pccc_encoder<std::uint8_t,std::uint8_t>);
+GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, pccc_encoder_bs, pccc_encoder<std::uint8_t,std::int16_t>);
+GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, pccc_encoder_bi, pccc_encoder<std::uint8_t,std::int32_t>);
+GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, pccc_encoder_ss, pccc_encoder<std::int16_t,std::int16_t>);
+GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, pccc_encoder_si, pccc_encoder<std::int16_t,std::int32_t>);
+GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, pccc_encoder_ii, pccc_encoder<std::int32_t,std::int32_t>);
 GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, metrics_s, metrics<std::int16_t>);
 GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, metrics_i, metrics<std::int32_t>);
 GR_SWIG_BLOCK_MAGIC2_TMPL(trellis, metrics_f, metrics<float>);
