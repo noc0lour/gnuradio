@@ -101,13 +101,12 @@ list(APPEND analog_libs
 add_library(gnuradio-analog SHARED ${analog_sources})
 target_link_libraries(gnuradio-analog ${analog_libs})
 GR_LIBRARY_FOO(gnuradio-analog)
-add_dependencies(gnuradio-analog analog_generated_includes analog_generated_swigs gnuradio-filter)
+add_dependencies(gnuradio-analog analog_generated_swigs gnuradio-filter)
 
 if(ENABLE_STATIC_LIBS)
   add_library(gnuradio-analog_static STATIC ${analog_sources})
 
   add_dependencies(gnuradio-analog_static
-    analog_generated_includes
     gnuradio-filter_static)
 
   if(NOT WIN32)
