@@ -235,7 +235,6 @@ list(APPEND blocks_libs
 )
 
 add_library(gnuradio-blocks SHARED ${gr_blocks_sources})
-add_dependencies(gnuradio-blocks blocks_generated_includes)
 
 target_link_libraries(gnuradio-blocks ${blocks_libs})
 GR_LIBRARY_FOO(gnuradio-blocks)
@@ -261,7 +260,7 @@ if(ENABLE_STATIC_LIBS)
 
   add_library(gnuradio-blocks_static STATIC ${gr_blocks_sources})
 
-  add_dependencies(gnuradio-blocks_static blocks_generated_includes)
+  add_dependencies(gnuradio-blocks_static)
 
   if(NOT WIN32)
     set_target_properties(gnuradio-blocks_static
