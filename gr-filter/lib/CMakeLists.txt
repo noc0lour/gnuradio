@@ -115,7 +115,7 @@ add_library(gnuradio-filter SHARED ${filter_sources})
 target_link_libraries(gnuradio-filter ${filter_libs})
 GR_LIBRARY_FOO(gnuradio-filter)
 add_dependencies(gnuradio-filter
-  filter_generated_includes filter_generated_swigs
+  filter_generated_swigs
   gnuradio-runtime gnuradio-fft)
 
 if(ENABLE_STATIC_LIBS)
@@ -133,7 +133,6 @@ if(ENABLE_STATIC_LIBS)
   add_library(gnuradio-filter_static STATIC ${filter_sources})
 
   add_dependencies(gnuradio-filter_static
-    filter_generated_includes
     gnuradio-runtime_static gnuradio-fft_static)
 
   if(NOT WIN32)
