@@ -199,7 +199,7 @@ target_link_libraries(gnuradio-runtime ${gnuradio_runtime_libs})
 GR_LIBRARY_FOO(gnuradio-runtime)
 
 add_dependencies(gnuradio-runtime
-  pmt_generated runtime_generated_includes
+  pmt_generated
 )
 
 
