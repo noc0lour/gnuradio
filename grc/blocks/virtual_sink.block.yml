@@ -1,6 +1,6 @@
 id: virtual_sink
 label: Virtual Sink
-flags: python, cpp
+flags: [ python, cpp ]
 
 parameters:
 -   id: stream_id
