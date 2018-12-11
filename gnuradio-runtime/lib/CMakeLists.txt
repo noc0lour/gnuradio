@@ -94,6 +94,7 @@ list(APPEND gnuradio_runtime_sources
   msg_accepter.cc
   msg_handler.cc
   msg_queue.cc
+  msgpack.cc
   pagesize.cc
   prefs.cc
   realtime.cc

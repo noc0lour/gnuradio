@@ -51,6 +51,7 @@ install(FILES
   msg_accepter.h
   msg_handler.h
   msg_queue.h
+  msgpack.h
   nco.h
   prefs.h
   py_feval.h
