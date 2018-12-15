@@ -164,11 +164,10 @@ macro(GR_SWIG_MAKE name)
     else()
       set(PYTHON_LINK_OPTIONS ${PYTHON_LIBRARIES})
     endif(APPLE)
-    SWIG_LINK_LIBRARIES(${name} ${PYTHON_LINK_OPTIONS} ${GR_SWIG_LIBRARIES})
     if(${name} STREQUAL "runtime_swig")
-        SET_TARGET_PROPERTIES(${SWIG_MODULE_runtime_swig_REAL_NAME} PROPERTIES DEFINE_SYMBOL "gnuradio_runtime_EXPORTS")
+        SET_TARGET_PROPERTIES(runtime_swig PROPERTIES DEFINE_SYMBOL "gnuradio_runtime_EXPORTS")
     endif(${name} STREQUAL "runtime_swig")
-
+    target_link_libraries(${name} ${PYTHON_LINK_OPTIONS} ${GR_SWIG_LIBRARIES})
 endmacro(GR_SWIG_MAKE)
 
 ########################################################################
