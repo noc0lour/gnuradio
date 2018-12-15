@@ -22,12 +22,7 @@ if(ENABLE_GR_CTRLPORT)
 # Keep track of the number of backends ControlPort supports
 SET(CTRLPORT_BACKENDS 0)
 
-# Add definition so we can compile in ControlPort to the blocks.
-add_definitions(-DGR_CTRLPORT)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-list(APPEND gnuradio_ctrlport_sources
+target_sources(gnuradio-runtime PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/rpcmanager.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/rpcserver_aggregator.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/rpcserver_booter_aggregator.cc
@@ -40,11 +35,9 @@ OPTION(ENABLE_CTRLPORT_THRIFT "Enable ControlPort Thrift support" ON)
 if(ENABLE_CTRLPORT_THRIFT)
 
 # Look if Thrift is installed and use it as a ControlPort backend.
-FIND_PACKAGE(Thrift)
+FIND_PACKAGE(THRIFT)
 
 if(THRIFT_FOUND)
-
-include_directories(${THRIFT_INCLUDE_DIRS})
 MATH(EXPR CTRLPORT_BACKENDS "${CTRLPORT_BACKENDS} + 1")
 
 # Indicate thrift as an installed backend in the cmake summary.
@@ -65,7 +58,8 @@ add_custom_command(
   OUTPUT ${gnuradio_thrift_generated_sources}
   COMMAND ${THRIFT_BIN} --gen cpp -out ${CMAKE_CURRENT_BINARY_DIR}/thrift/ ${CMAKE_CURRENT_SOURCE_DIR}/thrift/gnuradio.thrift
   )
-list(APPEND gnuradio_ctrlport_sources
+
+target_sources(gnuradio-runtime PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/thrift/rpcserver_thrift.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/thrift/rpcpmtconverters_thrift.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/thrift/rpcserver_booter_thrift.cc
@@ -73,11 +67,6 @@ list(APPEND gnuradio_ctrlport_sources
   # add files built by compiling gnuradio.thrift
   ${gnuradio_thrift_generated_sources}
   )
-
-# Add  required libraries here
-list(APPEND gnuradio_runtime_libs
-  ${THRIFT_LIBRARIES}
-)
 
 # Add install rule to move example Thrift configuration file into
 # $prefix/etc/gnuradio
@@ -92,8 +81,6 @@ endif(ENABLE_CTRLPORT_THRIFT)
 ########################################################################
 # Add controlport stuff to gnuradio-runtime
 ########################################################################
-
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Save the number of backends for testing against later
 set(
