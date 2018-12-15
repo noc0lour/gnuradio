@@ -111,7 +111,7 @@ macro(GR_SWIG_MAKE name)
         list(APPEND GR_SWIG_DOCS_TARGET_DEPS ${GR_SWIG_TARGET_DEPS})
         GR_SWIG_MAKE_DOCS(${GR_SWIG_DOC_FILE} ${GR_SWIG_DOC_DIRS})
         add_custom_target(${name}_swig_doc DEPENDS ${GR_SWIG_DOC_FILE})
-        list(APPEND GR_SWIG_TARGET_DEPS ${name}_swig_doc ${GR_RUNTIME_SWIG_DOC_FILE})
+        list(APPEND GR_SWIG_TARGET_DEPS ${name}_swig_doc)
     endif()
 
     #append additional include directories
@@ -143,9 +143,9 @@ macro(GR_SWIG_MAKE name)
     )
 
     #append the specified include directories
-    include_directories(${GR_SWIG_INCLUDE_DIRS})
     list(APPEND SWIG_MODULE_${name}_EXTRA_DEPS ${tag_file})
 
+    include_directories(${GR_SWIG_INCLUDE_DIRS})
     if (PYTHON3)
         set(py3 "-py3")
     endif (PYTHON3)
@@ -158,7 +158,7 @@ macro(GR_SWIG_MAKE name)
 
     #setup the actual swig library target to be built
     include(UseSWIG)
-    SWIG_ADD_MODULE(${name} python ${ifiles})
+    SWIG_ADD_LIBRARY(${name} LANGUAGE python SOURCES ${ifiles})
     if(APPLE)
       set(PYTHON_LINK_OPTIONS "-undefined dynamic_lookup")
     else()
@@ -184,17 +184,18 @@ macro(GR_SWIG_INSTALL)
     CMAKE_PARSE_ARGUMENTS(GR_SWIG_INSTALL "" "DESTINATION" "TARGETS" ${ARGN})
 
     foreach(name ${GR_SWIG_INSTALL_TARGETS})
-        install(TARGETS ${SWIG_MODULE_${name}_REAL_NAME}
+        install(TARGETS ${name}
             DESTINATION ${GR_SWIG_INSTALL_DESTINATION}
         )
 
         include(GrPython)
         GR_PYTHON_INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name}.py
-            DESTINATION ${GR_SWIG_INSTALL_DESTINATION}
+          DESTINATION ${GR_SWIG_INSTALL_DESTINATION}
+          DEPENDS ${name}
         )
 
         GR_LIBTOOL(
-            TARGET ${SWIG_MODULE_${name}_REAL_NAME}
+            TARGET ${name}
             DESTINATION ${GR_SWIG_INSTALL_DESTINATION}
         )
 

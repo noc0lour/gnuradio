@@ -122,12 +122,15 @@ endfunction(GR_UNIQUE_TARGET)
 ########################################################################
 function(GR_PYTHON_INSTALL)
     include(CMakeParseArgumentsCopy)
-    CMAKE_PARSE_ARGUMENTS(GR_PYTHON_INSTALL "" "DESTINATION" "FILES;PROGRAMS;DIRECTORY" ${ARGN})
+    CMAKE_PARSE_ARGUMENTS(GR_PYTHON_INSTALL "" "DESTINATION" "FILES;PROGRAMS;DIRECTORY;DEPENDS" ${ARGN})
 
     ####################################################################
     if(GR_PYTHON_INSTALL_FILES)
     ####################################################################
-        install(${ARGN}) #installs regular python files
+    install(
+      FILES ${GR_PYTHON_INSTALL_FILES}
+      DESTINATION ${GR_PYTHON_INSTALL_DESTINATION}
+    )
 
         #create a list of all generated files
         unset(pysrcfiles)
@@ -158,9 +161,14 @@ function(GR_PYTHON_INSTALL)
 
         endforeach(pyfile)
 
+        if(NOT GR_PYTHON_INSTALL_DEPENDS)
+          set(GR_PYTHON_INSTALL_DEPENDS ${pysrcfiles})
+        endif()
+
+
         #the command to generate the pyc files
         add_custom_command(
-            DEPENDS ${pysrcfiles} OUTPUT ${pycfiles}
+            DEPENDS ${GR_PYTHON_INSTALL_DEPENDS} OUTPUT ${pycfiles}
             COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_BINARY_DIR}/python_compile_helper.py ${pysrcfiles} ${pycfiles}
         )
 
@@ -179,7 +187,11 @@ function(GR_PYTHON_INSTALL)
     ####################################################################
     elseif(GR_PYTHON_INSTALL_DIRECTORY)
     ####################################################################
-        install(${ARGN}) #installs regular python files
+    install(
+      DIRECTORY ${GR_PYTHON_INSTALL_DIRECTORY}
+      DESTINATION ${GR_PYTHON_INSTALL_DESTINATION}
+    )
+
 
         # collect all python files in given directories
         # #############################################
