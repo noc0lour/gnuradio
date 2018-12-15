@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Free Software Foundation, Inc.
+# Copyright 2010-2013,2018 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -16,12 +16,6 @@
 # along with GNU Radio; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
-
-########################################################################
-# This file included, use CMake directory variables
-########################################################################
-include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
 
 set(pmt_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/pmt_unv.cc
@@ -52,7 +46,15 @@ endif(MSVC)
 
 
 add_library(gnuradio-pmt SHARED ${pmt_sources})
-target_link_libraries(gnuradio-pmt ${gnuradio_pmt_libs})
+target_link_libraries(gnuradio-pmt
+  Boost::boost
+  Log4Cpp::log4cpp
+  )
+target_include_directories(gnuradio-pmt
+  PUBLIC
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/)
 
 GR_LIBRARY_FOO(gnuradio-pmt)
 

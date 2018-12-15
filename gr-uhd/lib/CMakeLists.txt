@@ -18,26 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${GR_UHD_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${UHD_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
-
-link_directories(
-  ${UHD_LIBRARY_DIRS}
-  ${Boost_LIBRARY_DIRS}
-)
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND gr_uhd_sources
@@ -63,12 +43,16 @@ endif(MSVC)
 
 list(APPEND uhd_libs
     gnuradio-runtime
-    ${Boost_LIBRARIES}
     ${UHD_LIBRARIES}
 )
 
 add_library(gnuradio-uhd SHARED ${gr_uhd_sources})
 target_link_libraries(gnuradio-uhd ${uhd_libs})
+target_include_directories(gnuradio-uhd
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 GR_LIBRARY_FOO(gnuradio-uhd)
 
 ########################################################################

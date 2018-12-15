@@ -37,11 +37,6 @@ GR_REGISTER_COMPONENT("gr-fft" ENABLE_GR_FFT
     FFTW3F_FOUND
 )
 
-GR_SET_GLOBAL(GR_FFT_INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
 ########################################################################
 # Begin conditional configuration
 ########################################################################

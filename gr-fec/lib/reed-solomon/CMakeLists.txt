@@ -37,25 +37,26 @@ set(gr_fec_rs_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/decode_rs.c
     ${CMAKE_CURRENT_SOURCE_DIR}/init_rs.c
 )
+add_library(gr_fec_rs OBJECT ${gr_fec_rs_sources})
+target_include_directories(gr_fec_rs
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>
+  PRIVATE $<TARGET_PROPERTY:gnuradio-runtime,INCLUDE_DIRECTORIES>
+  )
 
-########################################################################
-# Setup sources and includes
-########################################################################
-list(APPEND gnuradio_fec_sources ${gr_fec_rs_sources})
-
-#install(
-#    FILES ${CMAKE_CURRENT_SOURCE_DIR}/rs.h
-#    DESTINATION ${GR_INCLUDE_DIR}/gnuradio/fec
-#)
+list(APPEND gnuradio_fec_sources $<TARGET_OBJECTS:gr_fec_rs>)
 
 ########################################################################
 # Register unit tests
 ########################################################################
 if(ENABLE_TESTING)
 add_executable(gr_fec_rstest
-    ${gr_fec_rs_sources}
-    ${CMAKE_CURRENT_SOURCE_DIR}/rstest.c
     ${CMAKE_CURRENT_SOURCE_DIR}/exercise.c
-)
-add_test(gr-fec-reed-solomon-test gr_fec_rstest)
+    ${CMAKE_CURRENT_SOURCE_DIR}/rstest.c
+    $<TARGET_OBJECTS:gr_fec_rs>
+    )
+  target_link_libraries(gr_fec_rstest gnuradio-runtime)
+  target_include_directories(gr_fec_rstest
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../include
+    )
+add_test(test_rs gr_fec_rstest)
 endif(ENABLE_TESTING)

@@ -18,28 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${GR_FILTER_INCLUDE_DIRS}
-    ${GR_FFT_INCLUDE_DIRS}
-    ${GR_BLOCKS_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${VOLK_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
-
-link_directories(
-  ${Boost_LIBRARY_DIRS}
-)
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND filter_sources
@@ -106,13 +84,17 @@ list(APPEND filter_libs
     gnuradio-runtime
     gnuradio-fft
     gnuradio-blocks
-    ${VOLK_LIBRARIES}
-    ${Boost_LIBRARIES}
+    ${GR_VOLK_LIB}
 )
 
 
 add_library(gnuradio-filter SHARED ${filter_sources})
 target_link_libraries(gnuradio-filter ${filter_libs})
+target_include_directories(gnuradio-filter
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 GR_LIBRARY_FOO(gnuradio-filter)
 add_dependencies(gnuradio-filter
   gnuradio-runtime gnuradio-fft)
@@ -150,11 +132,6 @@ endif(ENABLE_STATIC_LIBS)
 ########################################################################
 if(ENABLE_TESTING)
   include(GrTest)
-
-  include_directories(
-    ${GR_BLOCKS_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-  )
 
   list(APPEND test_gr_filter_sources
     qa_firdes.cc

@@ -35,10 +35,6 @@ list(APPEND gr_audio_libs gnuradio-runtime ${Boost_LIBRARIES})
 list(APPEND gr_audio_sources audio_registry.cc)
 list(APPEND gr_audio_confs ${CMAKE_CURRENT_SOURCE_DIR}/gr-audio.conf)
 
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
 ########################################################################
 ## ALSA Support
 ########################################################################
@@ -199,6 +195,11 @@ endif(WIN32)
 ########################################################################
 add_library(gnuradio-audio SHARED ${gr_audio_sources})
 target_link_libraries(gnuradio-audio ${gr_audio_libs})
+target_include_directories(gnuradio-audio
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 GR_LIBRARY_FOO(gnuradio-audio)
 
 install(FILES ${gr_audio_confs} DESTINATION ${GR_PREFSDIR})

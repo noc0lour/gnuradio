@@ -23,27 +23,6 @@ GR_INCLUDE_SUBDIRECTORY(reed-solomon)
 GR_INCLUDE_SUBDIRECTORY(viterbi)
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${GR_FEC_INCLUDE_DIRS}
-    ${GR_BLOCKS_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${VOLK_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-link_directories(
-  ${Boost_LIBRARY_DIRS}
-)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND gnuradio_fec_sources
@@ -104,10 +83,8 @@ if(MSVC)
 endif(MSVC)
 
 list(APPEND gnuradio_fec_libs
-    gnuradio-blocks
     gnuradio-runtime
-    ${VOLK_LIBRARIES}
-    ${Boost_LIBRARIES}
+    gnuradio-blocks
 )
 
 # Only include the LDPC work if we have GSL installed
@@ -128,6 +105,11 @@ endif(GSL_FOUND)
 
 add_library(gnuradio-fec SHARED ${gnuradio_fec_sources})
 target_link_libraries(gnuradio-fec ${gnuradio_fec_libs})
+target_include_directories(gnuradio-fec
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 GR_LIBRARY_FOO(gnuradio-fec)
 
 if(ENABLE_STATIC_LIBS)

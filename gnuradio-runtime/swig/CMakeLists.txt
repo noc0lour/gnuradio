@@ -24,20 +24,13 @@ include(GrPython)
 include(GrSwig)
 
 set(GR_SWIG_INCLUDE_DIRS
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
     ${GNURADIO_RUNTIME_SWIG_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${Boost_INCLUDE_DIRS}
-)
-
-link_directories(${Boost_LIBRARY_DIRS})
+    ${CMAKE_CURRENT_BINARY_DIR})
 
 set(GR_SWIG_LIBRARIES
-    gnuradio-pmt
-    gnuradio-runtime
-    ${LOG4CPP_LIBRARIES}
-)
+    gnuradio-runtime)
 
+file(GENERATE OUTPUT /tmp/debug.txt CONTENT "${GR_SWIG_INCLUDE_DIRS}")
 ###############################################################
 #    Build pmt swig
 ###############################################################
@@ -52,17 +45,9 @@ GR_SWIG_INSTALL(
     DESTINATION ${GR_PYTHON_DIR}/pmt
 )
 
-add_custom_target(pmt_swig DEPENDS ${SWIG_MODULE_pmt_swig_REAL_NAME})
-
 ###############################################################
 #    Build gnuradio-runtime swig
 ###############################################################
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-  list(APPEND GR_SWIG_FLAGS -DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
 set(GR_SWIG_DOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/runtime_swig_doc.i)
 set(GR_SWIG_DOC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 set(GR_RUNTIME_SWIG_DOC_FILE ${GR_SWIG_DOC_FILE})

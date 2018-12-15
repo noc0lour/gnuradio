@@ -18,26 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${GR_DTV_INCLUDE_DIRS}
-    ${GR_FILTER_INCLUDE_DIRS}
-    ${GR_ANALOG_INCLUDE_DIRS}
-    ${GR_FEC_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${VOLK_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
-
-link_directories(${Boost_LIBRARY_DIRS})
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND dtv_sources
@@ -105,7 +85,7 @@ list(APPEND dtv_libs
     gnuradio-analog
     gnuradio-filter
     gnuradio-fec
-    ${VOLK_LIBRARIES}
+    ${GR_VOLK_LIB}
 )
 
 include (CheckCCompilerFlag)
@@ -155,4 +135,11 @@ endif(MSVC)
 
 add_library(gnuradio-dtv SHARED ${dtv_sources})
 target_link_libraries(gnuradio-dtv ${dtv_libs})
+target_include_directories(gnuradio-dtv
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  )
 GR_LIBRARY_FOO(gnuradio-dtv)

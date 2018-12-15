@@ -18,23 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}/../include
-    ${GR_TRELLIS_INCLUDE_DIRS}
-    ${GR_DIGITAL_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
-
-link_directories(${Boost_LIBRARY_DIRS})
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND trellis_sources
@@ -63,7 +46,6 @@ list(APPEND trellis_sources
 list(APPEND trellis_libs
     gnuradio-runtime
     gnuradio-digital
-    ${Boost_LIBRARIES}
 )
 
 #Add Windows DLL resource file if using MSVC
@@ -82,6 +64,11 @@ ENDIF(MSVC)
 
 add_library(gnuradio-trellis SHARED ${trellis_sources})
 target_link_libraries(gnuradio-trellis ${trellis_libs})
+target_include_directories(gnuradio-trellis
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 GR_LIBRARY_FOO(gnuradio-trellis)
 add_dependencies(gnuradio-trellis
   gnuradio-runtime gnuradio-digital)

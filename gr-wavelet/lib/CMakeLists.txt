@@ -35,10 +35,6 @@ link_directories(${Boost_LIBRARY_DIRS})
 link_directories(${GSL_LIBRARY_DIRS})
 add_definitions(${GSL_DEFINITIONS})
 
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
 ########################################################################
 # Setup library
 ########################################################################

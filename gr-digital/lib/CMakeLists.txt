@@ -18,27 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${GR_DIGITAL_INCLUDE_DIRS}
-    ${GR_BLOCKS_INCLUDE_DIRS}
-    ${GR_ANALOG_INCLUDE_DIRS}
-    ${GR_FFT_INCLUDE_DIRS}
-    ${GR_FILTER_INCLUDE_DIRS}
-    ${GR_BLOCKS_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${VOLK_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
-
-link_directories(${Boost_LIBRARY_DIRS})
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND digital_sources
@@ -140,12 +119,16 @@ list(APPEND digital_libs
     gnuradio-filter
     gnuradio-blocks
     gnuradio-analog
-    ${VOLK_LIBRARIES}
-    ${Boost_LIBRARIES}
+    Boost::boost
+    ${GR_VOLK_LIB}
 )
 
 add_library(gnuradio-digital SHARED ${digital_sources})
 target_link_libraries(gnuradio-digital ${digital_libs})
+target_include_directories(gnuradio-digital
+  PUBLIC $<INSTALL_INTERFACE:include>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 GR_LIBRARY_FOO(gnuradio-digital)
 
 add_dependencies(
@@ -192,11 +175,6 @@ endif(ENABLE_STATIC_LIBS)
 ########################################################################
 if(ENABLE_TESTING)
   include(GrTest)
-
-  include_directories(
-    ${GR_DIGITAL_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-  )
 
   list(APPEND test_gr_digital_sources
     qa_header_format.cc

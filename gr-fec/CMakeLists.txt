@@ -36,13 +36,6 @@ GR_REGISTER_COMPONENT("gr-fec" ENABLE_GR_FEC
     ENABLE_GR_BLOCKS
 )
 
-GR_SET_GLOBAL(GR_FEC_INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/viterbi
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/reed-solomon
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
 SET(GR_PKG_FEC_EXAMPLES_DIR ${GR_PKG_DATA_DIR}/examples/fec)
 
 ########################################################################

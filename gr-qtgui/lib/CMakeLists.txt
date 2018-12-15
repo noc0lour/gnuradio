@@ -119,41 +119,13 @@ if(MSVC)
 endif(MSVC)
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${GR_QTGUI_INCLUDE_DIRS}
-    ${GR_FFT_INCLUDE_DIRS}
-    ${GR_FILTER_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${VOLK_INCLUDE_DIRS}
-    ${QWT_INCLUDE_DIRS}
-    ${QT_INCLUDE_DIRS}
-    ${FFTW3F_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-    ${PYTHON_INCLUDE_DIRS}
-)
-
-link_directories(
-    ${QWT_LIBRARY_DIRS}
-    ${FFTW3F_LIBRARY_DIRS}
-    ${Boost_LIBRARY_DIRS}
-)
-
-include_directories(${PYTHON_INCLUDE_PATH}) #deprecated for dirs (cmake 2.6)
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND qtgui_libs
     gnuradio-runtime
     gnuradio-fft
     gnuradio-filter
-    ${VOLK_LIBRARIES}
+    ${GR_VOLK_LIB}
     ${QWT_LIBRARIES}
     ${QT_LIBRARIES}
     ${FFTW3F_LIBRARIES}
@@ -175,6 +147,15 @@ endif(ENABLE_PYTHON)
 add_definitions(-DQWT_DLL) #setup QWT library linkage
 add_library(gnuradio-qtgui SHARED ${qtgui_sources})
 target_link_libraries(gnuradio-qtgui ${qtgui_libs})
+target_include_directories(gnuradio-qtgui
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  ${QWT_INCLUDE_DIRS}
+  ${PYTHON_INCLUDE_DIRS}
+  PRIVATE
+  ${CMAKE_CURRENT_BINARY_DIR}
+  )
 GR_LIBRARY_FOO(gnuradio-qtgui)
 
 if(ENABLE_STATIC_LIBS)

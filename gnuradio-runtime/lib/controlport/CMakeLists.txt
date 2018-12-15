@@ -22,11 +22,6 @@ if(ENABLE_GR_CTRLPORT)
 # Keep track of the number of backends ControlPort supports
 SET(CTRLPORT_BACKENDS 0)
 
-# Add definition so we can compile in ControlPort to the blocks.
-add_definitions(-DGR_CTRLPORT)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
 list(APPEND gnuradio_ctrlport_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/rpcmanager.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/rpcserver_aggregator.cc
@@ -43,8 +38,6 @@ if(ENABLE_CTRLPORT_THRIFT)
 FIND_PACKAGE(Thrift)
 
 if(THRIFT_FOUND)
-
-include_directories(${THRIFT_INCLUDE_DIRS})
 MATH(EXPR CTRLPORT_BACKENDS "${CTRLPORT_BACKENDS} + 1")
 
 # Indicate thrift as an installed backend in the cmake summary.
@@ -74,10 +67,9 @@ list(APPEND gnuradio_ctrlport_sources
   ${gnuradio_thrift_generated_sources}
   )
 
-# Add  required libraries here
 list(APPEND gnuradio_runtime_libs
-  ${THRIFT_LIBRARIES}
-)
+  Thrift::thrift
+  )
 
 # Add install rule to move example Thrift configuration file into
 # $prefix/etc/gnuradio
@@ -92,8 +84,6 @@ endif(ENABLE_CTRLPORT_THRIFT)
 ########################################################################
 # Add controlport stuff to gnuradio-runtime
 ########################################################################
-
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Save the number of backends for testing against later
 set(

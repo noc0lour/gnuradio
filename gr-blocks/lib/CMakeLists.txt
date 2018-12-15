@@ -23,24 +23,6 @@
 include(${CMAKE_CURRENT_SOURCE_DIR}/ConfigChecks.cmake)
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/../include
-    ${GR_BLOCKS_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
-
-link_directories(${Boost_LIBRARY_DIRS})
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND gr_blocks_sources
@@ -239,6 +221,11 @@ list(APPEND blocks_libs
 add_library(gnuradio-blocks SHARED ${gr_blocks_sources})
 
 target_link_libraries(gnuradio-blocks ${blocks_libs})
+target_include_directories(gnuradio-blocks
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 GR_LIBRARY_FOO(gnuradio-blocks)
 
 if(ENABLE_STATIC_LIBS)

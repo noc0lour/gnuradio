@@ -1,4 +1,4 @@
-# Copyright 2013 Free Software Foundation, Inc.
+# Copyright 2013,2018 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -43,23 +43,7 @@ configure_file(
 
 list(APPEND gnuradio_runtime_sources ${CMAKE_CURRENT_BINARY_DIR}/constants.cc)
 
-########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(${GNURADIO_RUNTIME_INCLUDE_DIRS}
-                    ${CMAKE_CURRENT_SOURCE_DIR}
-            ${VOLK_INCLUDE_DIRS}
-                    ${Boost_INCLUDE_DIRS}
-                    ${MPLIB_INCLUDE_DIRS}
-)
-
-if(ENABLE_CTRLPORT_THRIFT)
-    list(APPEND include_directories
-        ${THRIFT_INCLUDE_DIRS}
-    )
-endif(ENABLE_CTRLPORT_THRIFT)
-
-########################################################################
+#########################################################################
 # Include subdirs rather to populate to the sources lists.
 ########################################################################
 add_subdirectory(pmt)
@@ -121,12 +105,16 @@ list(APPEND gnuradio_runtime_sources
 )
 
 list(APPEND gnuradio_runtime_libs
-    gnuradio-pmt
-    ${VOLK_LIBRARIES}
-    ${Boost_LIBRARIES}
-    ${LOG4CPP_LIBRARIES}
-    ${MPLIB_LIBRARIES}
-)
+  gnuradio-pmt
+  ${GR_VOLK_LIB}
+  Boost::program_options
+  Boost::filesystem
+  Boost::system
+  Boost::regex
+  Boost::thread
+  Log4Cpp::log4cpp
+  MPLib::mplib
+  )
 
 #Add libraries for winsock2.h on Windows
 CHECK_INCLUDE_FILE_CXX(windows.h HAVE_WINDOWS_H)
@@ -187,7 +175,21 @@ endif(TRY_SHM_VMCIRCBUF)
 #######################################################
 add_library(gnuradio-runtime SHARED ${gnuradio_runtime_sources})
 target_link_libraries(gnuradio-runtime ${gnuradio_runtime_libs})
+
+target_include_directories(gnuradio-runtime
+  PUBLIC
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+
+  if(ENABLE_GR_CTRLPORT)
+    target_compile_definitions(gnuradio-runtime PUBLIC GR_CTRLPORT)
+  endif()
 GR_LIBRARY_FOO(gnuradio-runtime)
+
 
 #######################################################
 # STATIC LIB BUILD
@@ -247,7 +249,6 @@ if(ENABLE_TESTING)
   endforeach(qa_file)
 
   # Math tests:
-  include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/math)
   list(APPEND test_gnuradio_math_sources
     qa_fxpt.cc
     qa_fxpt_nco.cc
@@ -260,12 +261,16 @@ if(ENABLE_TESTING)
   foreach(qa_file ${test_gnuradio_math_sources})
     GR_ADD_CPP_TEST("math_${qa_file}"
       ${CMAKE_CURRENT_SOURCE_DIR}/math/${qa_file}
-    )
+      )
+    target_include_directories("math_${qa_file}"
+      PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/math
+      )
   endforeach(qa_file)
 
   # PMT tests:
-  include_directories(${CMAKE_CURRENT_BINARY_DIR}/pmt)
   GR_ADD_CPP_TEST("pmt_prims" ${CMAKE_CURRENT_SOURCE_DIR}/pmt/qa_pmt_prims.cc)
   GR_ADD_CPP_TEST("pmt_unv" ${CMAKE_CURRENT_SOURCE_DIR}/pmt/qa_pmt_unv.cc)
+  target_include_directories("pmt_prims" PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/pmt)
+  target_include_directories("pmt_unv" PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/pmt)
 
 endif(ENABLE_TESTING)

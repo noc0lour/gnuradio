@@ -30,10 +30,6 @@ set(GR_SWIG_INCLUDE_DIRS
     ${Boost_INCLUDE_DIRS}
 )
 
-if(ENABLE_GR_CTRLPORT)
-  list(APPEND GR_SWIG_FLAGS "-DGR_CTRLPORT")
-endif(ENABLE_GR_CTRLPORT)
-
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/blocks_swig.py.in
     ${CMAKE_CURRENT_BINARY_DIR}/blocks_swig.py

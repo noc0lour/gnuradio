@@ -18,22 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${GR_ZEROMQ_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-    ${ZEROMQ_INCLUDE_DIRS}
-)
-
-link_directories(${Boost_LIBRARY_DIRS})
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND zeromq_sources
@@ -75,6 +59,11 @@ list(APPEND zeromq_libs
 
 add_library(gnuradio-zeromq SHARED ${zeromq_sources})
 target_link_libraries(gnuradio-zeromq ${zeromq_libs})
+target_include_directories(gnuradio-zeromq
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 GR_LIBRARY_FOO(gnuradio-zeromq)
 
 if(ENABLE_STATIC_LIBS)

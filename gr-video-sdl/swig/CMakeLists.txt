@@ -31,10 +31,6 @@ set(GR_SWIG_INCLUDE_DIRS
 
 set(GR_SWIG_LIBRARIES gnuradio-video-sdl)
 
-if(ENABLE_GR_CTRLPORT)
-  list(APPEND GR_SWIG_FLAGS "-DGR_CTRLPORT")
-endif(ENABLE_GR_CTRLPORT)
-
 # Setup swig docs to depend on includes and pull in from build directory
 set(GR_SWIG_DOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/video_sdl_swig_doc.i)
 set(GR_SWIG_DOC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../include/gnuradio/video_sdl)

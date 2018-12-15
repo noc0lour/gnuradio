@@ -18,22 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${GR_VIDEO_SDL_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-    ${SDL_INCLUDE_DIR}
-)
-
-link_directories(${Boost_LIBRARY_DIRS})
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND video_sdl_sources
@@ -43,7 +27,6 @@ list(APPEND video_sdl_sources
 
 list(APPEND video_sdl_libs
     gnuradio-runtime
-    ${Boost_LIBRARIES}
     ${SDL_LIBRARY}
 )
 
@@ -63,6 +46,12 @@ ENDIF(MSVC)
 
 add_library(gnuradio-video-sdl SHARED ${video_sdl_sources})
 target_link_libraries(gnuradio-video-sdl ${video_sdl_libs})
+target_include_directories(gnuradio-video-sdl
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  ${SDL_INCLUDE_DIR}
+  )
 GR_LIBRARY_FOO(gnuradio-video-sdl)
 add_dependencies(gnuradio-video-sdl gnuradio-runtime)
 

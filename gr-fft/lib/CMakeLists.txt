@@ -18,26 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${GR_FFT_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${VOLK_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-    ${FFTW3F_INCLUDE_DIRS}
-)
-
-link_directories(${Boost_LIBRARY_DIRS})
-link_directories(${FFTW3F_LIBRARY_DIRS})
-
-if(ENABLE_GR_CTRLPORT)
-  ADD_DEFINITIONS(-DGR_CTRLPORT)
-endif(ENABLE_GR_CTRLPORT)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND fft_sources
@@ -56,10 +36,9 @@ list(APPEND fft_sources
 endif(ENABLE_GR_CTRLPORT)
 
 list(APPEND fft_libs
-    gnuradio-runtime
-    ${VOLK_LIBRARIES}
-    ${Boost_LIBRARIES}
-    ${FFTW3F_LIBRARIES}
+  gnuradio-runtime
+  ${GR_VOLK_LIB}
+  ${FFTW3F_LIBRARIES}
 )
 
 #Add Windows DLL resource file if using MSVC
@@ -83,6 +62,11 @@ endif()
 
 add_library(gnuradio-fft SHARED ${fft_sources})
 target_link_libraries(gnuradio-fft ${fft_libs})
+target_include_directories(gnuradio-fft
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 GR_LIBRARY_FOO(gnuradio-fft)
 
 if(ENABLE_STATIC_LIBS)
