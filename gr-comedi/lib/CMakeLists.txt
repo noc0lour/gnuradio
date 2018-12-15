@@ -18,21 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 ########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${GR_COMEDI_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-    ${COMEDI_INCLUDE_DIRS}
-)
-
-link_directories(
-    ${Boost_LIBRARY_DIRS}
-    ${COMEDI_LIBRARY_DIRS}
-)
-
-########################################################################
 # Setup library
 ########################################################################
 list(APPEND comedi_sources
@@ -42,12 +27,16 @@ list(APPEND comedi_sources
 
 list(APPEND comedi_libs
     gnuradio-runtime
-    ${Boost_LIBRARIES}
     ${COMEDI_LIBRARIES}
 )
 
 add_library(gnuradio-comedi SHARED ${comedi_sources})
 target_link_libraries(gnuradio-comedi ${comedi_libs})
+target_include_directories(gnuradio-comedi
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 GR_LIBRARY_FOO(gnuradio-comedi)
 
 if(ENABLE_STATIC_LIBS)
