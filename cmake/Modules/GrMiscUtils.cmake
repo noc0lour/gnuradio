@@ -139,10 +139,18 @@ function(GR_LIBRARY_FOO target)
 
     #install the generated files like so...
     install(TARGETS ${target}
+        EXPORT ${target}-export
         LIBRARY DESTINATION ${GR_LIBRARY_DIR} # .so/.dylib file
         ARCHIVE DESTINATION ${GR_LIBRARY_DIR} # .lib file
         RUNTIME DESTINATION ${GR_RUNTIME_DIR} # .dll file
-    )
+        )
+
+    #install the exported target files
+    install(EXPORT ${target}-export
+      FILE ${target}Targets.cmake
+      NAMESPACE gnuradio::
+      DESTINATION ${GR_LIBRARY_DIR}/cmake/gnuradio
+      )
 
     #extras mode enabled automatically on linux
     if(NOT DEFINED LIBRARY_EXTRAS)
