@@ -36,7 +36,7 @@ environment:
     - GENERATOR: "Visual Studio 14 2015"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       VISUAL_STUDIO_VERSION: "14.0"
-      BOOST_VER: 1_59_0
+      BOOST_VER: 1_60_0
     - GENERATOR: "Visual Studio 15 2017"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       VISUAL_STUDIO_VERSION: "15.0"
@@ -57,7 +57,7 @@ before_build:
       mkdir build
       cd build
       cmake --version
-  - cmd: cmake .. -G "%GENERATOR%" -DPYTHON_EXECUTABLE="C:\Python34-x64\python.exe"
+  - cmd: cmake .. -G "%GENERATOR%" -DPYTHON_EXECUTABLE="C:\ProgramData\chocolatey\bin\python.exe"
 
 build_script:
    - msbuild ALL_BUILD.vcxproj /m /verbosity:normal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
