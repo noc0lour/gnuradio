@@ -47,8 +47,8 @@ environment:
 install:
   - ps: |
       choco install swig
-      ${env:PYTHON}\\python.exe -m pip install --upgrade pip
-      ${evn:PYTHON}\\python.exe -m pip install mako six Cheetah lxml numpy pyqt5
+      ${env:PYTHON}\python.exe -m pip install --upgrade pip
+      ${env:PYTHON}\python.exe -m pip install mako six Cheetah lxml numpy pyqt5
 
       Start-FileDownload https://github.com/noc0lour/log4cpp/releases/download/v1.1.1dev/log4cpp-1.1.1dev-win64.zip log4cpp.zip
       7z x -bd -oC:\Libraries log4cpp.zip
