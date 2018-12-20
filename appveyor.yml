@@ -37,16 +37,18 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       VISUAL_STUDIO_VERSION: "14.0"
       BOOST_VER: 1_60_0
+      PYTHON: "C:\\Python34"
     - GENERATOR: "Visual Studio 15 2017"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       VISUAL_STUDIO_VERSION: "15.0"
       BOOST_VER: 1_66_0
+      PYTHON: "C:\\Python34"
 
 install:
   - ps: |
-      choco install swig PyQt5
-      python -m pip install --upgrade pip
-      pip install mako six Cheetah lxml numpy
+      choco install swig
+      ${env:PYTHON}\\python.exe -m pip install --upgrade pip
+      ${evn:PYTHON}\\python.exe -m pip install mako six Cheetah lxml numpy pyqt5
 
       Start-FileDownload https://github.com/noc0lour/log4cpp/releases/download/v1.1.1dev/log4cpp-1.1.1dev-win64.zip log4cpp.zip
       7z x -bd -oC:\Libraries log4cpp.zip
@@ -57,7 +59,7 @@ before_build:
       mkdir build
       cd build
       cmake --version
-  - cmd: cmake .. -G "%GENERATOR%" -DPYTHON_EXECUTABLE="C:\ProgramData\chocolatey\bin\python.exe"
+  - cmd: cmake .. -G "%GENERATOR%" -DPYTHON_EXECUTABLE="%PYTHON%\\python.exe"
 
 build_script:
    - msbuild ALL_BUILD.vcxproj /m /verbosity:normal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
