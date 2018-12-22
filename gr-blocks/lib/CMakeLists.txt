@@ -199,6 +199,8 @@ list(APPEND gr_blocks_sources
     wavfile_source_impl.cc
 )
 
+set_source_files_properties(file_source_impl.cc PROPERTIES COMPILE_FLAGS -D_FILE_OFFSET_BITS=64)
+
 if(ENABLE_GR_CTRLPORT)
 list(APPEND blocks_ctrlport_sources
   ctrlport_probe_c_impl.cc
