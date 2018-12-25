@@ -38,14 +38,14 @@ namespace gr {
   namespace blocks {
 
     file_source::sptr file_source::make(size_t itemsize, const char *filename, bool repeat,
-                                        uint64_t start_offset_items, uint64_t length_items)
+                                        int64_t start_offset_items, int64_t length_items)
     {
       return gnuradio::get_initial_sptr
         (new file_source_impl(itemsize, filename, repeat, start_offset_items, length_items));
     }
 
     file_source_impl::file_source_impl(size_t itemsize, const char *filename, bool repeat,
-                                       uint64_t start_offset_items, uint64_t length_items)
+                                       int64_t start_offset_items, int64_t length_items)
       : sync_block("file_source",
                    io_signature::make(0, 0, 0),
                    io_signature::make(1, 1, itemsize)),
@@ -71,7 +71,7 @@ namespace gr {
     }
 
     bool
-    file_source_impl::seek(uint64_t seek_point, int whence)
+    file_source_impl::seek(int64_t seek_point, int whence)
     {
       seek_point += d_start_offset_items;
 
@@ -101,7 +101,7 @@ namespace gr {
 
     void
     file_source_impl::open(const char *filename, bool repeat,
-                           uint64_t start_offset_items, uint64_t length_items)
+                           int64_t start_offset_items, int64_t length_items)
     {
       // obtain exclusive access for duration of this function
       gr::thread::scoped_lock lock(fp_mutex);
@@ -113,13 +113,12 @@ namespace gr {
 
       if((d_new_fp = fopen (filename, "rb")) == NULL) {
         GR_LOG_ERROR(d_logger, boost::format("%s: %s") % filename % strerror(errno));
-        fclose(d_new_fp);    // don't leak file descriptor if fopen fails
         throw std::runtime_error("can't open file");
       }
 
       //Check to ensure the file will be consumed according to item size
       fseeko(d_new_fp, 0, SEEK_END);
-      uint64_t file_size = ftello(d_new_fp);
+      int64_t file_size = ftello(d_new_fp);
 
       // Make sure there will be at least one item available
       if ((file_size / d_itemsize) < (start_offset_items+1)) {
@@ -133,7 +132,7 @@ namespace gr {
         throw std::runtime_error("file is too small");
       }
 
-      uint64_t items_available = (file_size / d_itemsize - start_offset_items);
+      int64_t items_available = (file_size / d_itemsize - start_offset_items);
 
       // If length is not specified, use the remainder of the file. Check alignment at end.
       if (length_items == 0) {
@@ -200,7 +199,7 @@ namespace gr {
                            gr_vector_void_star &output_items)
     {
       char *o = (char*)output_items[0];
-      uint64_t size = noutput_items;
+      int64_t size = noutput_items;
 
       do_update();       // update d_fp is reqd
       if(d_fp == NULL)
@@ -221,7 +220,7 @@ namespace gr {
           d_file_begin = false;
         }
 
-        uint64_t nitems_to_read = std::min(size, d_items_remaining);
+        int64_t nitems_to_read = std::min(size, d_items_remaining);
 
         // Since the bounds of the file are known, unexpected nitems is an error
         if (nitems_to_read != fread(o, d_itemsize, nitems_to_read, (FILE*)d_fp))
