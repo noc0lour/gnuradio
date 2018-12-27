@@ -94,8 +94,11 @@ namespace gr {
         GR_LOG_WARN(d_logger, "bad seek point");
         return 0;
       }
-
+#ifdef _MSC_VER
+      return _fseeki64((FILE*)d_fp, seek_point * d_itemsize, SEEK_SET) == 0;
+#else
       return fseeko((FILE*)d_fp, seek_point * d_itemsize, SEEK_SET) == 0;
+#endif
     }
 
 
@@ -117,8 +120,13 @@ namespace gr {
       }
 
       //Check to ensure the file will be consumed according to item size
+#ifdef _MSC_VER
+      _fseeki64(d_new_fp, 0, SEEK_END);
+      int64_t file_size = _ftelli64(d_new_fp);
+#else
       fseeko(d_new_fp, 0, SEEK_END);
       int64_t file_size = ftello(d_new_fp);
+#endif
 
       // Make sure there will be at least one item available
       if ((file_size / d_itemsize) < (start_offset_items+1)) {
@@ -149,7 +157,11 @@ namespace gr {
       }
 
       // Rewind to start offset
+#ifdef _MSC_VER
+      _fseeki64(d_new_fp, start_offset_items * d_itemsize, SEEK_SET);
+#else
       fseeko(d_new_fp, start_offset_items * d_itemsize, SEEK_SET);
+#endif
 
       d_updated = true;
       d_repeat = repeat;
@@ -235,7 +247,11 @@ namespace gr {
 
           // Repeat: rewind and request tag
           if (d_repeat) {
+#ifdef _MSC_VER
+            _fseeki64(d_fp, d_start_offset_items * d_itemsize, SEEK_SET);
+#else
             fseeko(d_fp, d_start_offset_items * d_itemsize, SEEK_SET);
+#endif
             d_items_remaining = d_length_items;
             if (d_add_begin_tag != pmt::PMT_NIL) {
               d_file_begin = true;
