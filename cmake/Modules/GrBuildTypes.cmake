@@ -38,7 +38,7 @@ set(__INCLUDED_GR_BUILD_TYPES_CMAKE TRUE)
 # build type below, make sure to add it to this list.
 list(APPEND AVAIL_BUILDTYPES
   None Debug Release RelWithDebInfo MinSizeRel
-  Coverage NoOptWithASM O2WithASM O3WithASM
+  Coverage NoOptWithASM O2WithASM O3WithASM ASAN
 )
 
 ########################################################################
@@ -92,6 +92,33 @@ if(NOT WIN32)
     CMAKE_EXE_LINKER_FLAGS_COVERAGE
     CMAKE_SHARED_LINKER_FLAGS_COVERAGE)
 endif(NOT WIN32)
+
+########################################################################
+# For GCC and Clang, we can set a build type:
+#
+# -DCMAKE_BUILD_TYPE=ASan
+#
+# NOTE: This is not defined on Windows systems.
+########################################################################
+if(NOT WIN32)
+  SET(CMAKE_CXX_FLAGS_ASAN "-g -fsanitize=address -fno-omit-frame-pointer" CACHE STRING
+    "Flags used by clang for address sanitizer." FORCE)
+  SET(CMAKE_C_FLAGS_ASAN "-g -fsanitize=address -fno-omit-frame-pointer" CACHE STRING
+    "Flags used by clang for address sanitizer ." FORCE)
+  SET(CMAKE_EXE_LINKER_FLAGS_ASAN
+    "-g -fsanitize=address -shared-libasan" CACHE STRING
+    "Flags used by clang for linking with address sanitizer" FORCE)
+  SET(CMAKE_SHARED_LINKER_FLAGS_ASAN
+    "-g -fsanitize=address -shared-libasan" CACHE STRING
+    "Flags used by clang for linking with address sanitizer" FORCE)
+
+  MARK_AS_ADVANCED(
+    CMAKE_CXX_FLAGS_ASAN
+    CMAKE_C_FLAGS_ASAN
+    CMAKE_EXE_LINKER_FLAGS_ASAN
+    CMAKE_SHARED_LINKER_FLAGS_ASAN)
+endif(NOT WIN32)
+
 
 
 ########################################################################
