@@ -1,4 +1,4 @@
-# Copyright 2012,2014 Free Software Foundation, Inc.
+# Copyright 2012,2014,2019 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -16,24 +16,6 @@
 # along with GNU Radio; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
-
-########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${GR_WAVELET_INCLUDE_DIRS}
-    ${GR_BLOCKS_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-    ${GSL_INCLUDE_DIRS}
-)
-
-link_directories(${GR_WAVELET_LIBRARY_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
-link_directories(${GSL_LIBRARY_DIRS})
-add_definitions(${GSL_DEFINITIONS})
 
 ########################################################################
 # Setup library
@@ -61,13 +43,16 @@ endif(MSVC)
 list(APPEND wavelet_libs
     gnuradio-runtime
     gnuradio-blocks
-    ${Boost_LIBRARIES}
-    ${WAVELET_LIBRARIES}
-    ${GSL_LIBRARIES}
+    gsl::gsl
 )
 
 add_library(gnuradio-wavelet SHARED ${gr_wavelet_sources})
 target_link_libraries(gnuradio-wavelet ${wavelet_libs})
+target_include_directories(gnuradio-wavelet
+  PUBLIC $<INSTALL_INTERFACE:include>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
+
 
 # we need -no-as-needed or else -lgslcblas gets stripped out on newer version of gcc
 if(CMAKE_COMPILER_IS_GNUCC AND NOT APPLE)

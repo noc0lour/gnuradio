@@ -1,4 +1,4 @@
-# Copyright 2012-2014 Free Software Foundation, Inc.
+# Copyright 2012-2014,2019 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -89,9 +89,7 @@ list(APPEND gnuradio_fec_libs
 
 # Only include the LDPC work if we have GSL installed
 if(GSL_FOUND)
-  include_directories(${GSL_INCLUDE_DIRS})
-  link_directories(${GSL_LIBRARY_DIRS})
-  list(APPEND gnuradio_fec_libs ${GSL_LDFLAGS})
+  list(APPEND gnuradio_fec_libs gsl::gsl)
 
   list(APPEND gnuradio_fec_sources
     ldpc_bit_flip_decoder_impl.cc

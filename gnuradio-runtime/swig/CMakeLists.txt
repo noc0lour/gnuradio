@@ -1,4 +1,4 @@
-# Copyright 2013 Free Software Foundation, Inc.
+# Copyright 2013,2019 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -24,13 +24,12 @@ include(GrPython)
 include(GrSwig)
 
 set(GR_SWIG_INCLUDE_DIRS
-    ${GNURADIO_RUNTIME_SWIG_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR})
 
 set(GR_SWIG_LIBRARIES
     gnuradio-runtime)
 
-file(GENERATE OUTPUT /tmp/debug.txt CONTENT "${GR_SWIG_INCLUDE_DIRS}")
 ###############################################################
 #    Build pmt swig
 ###############################################################
@@ -62,7 +61,6 @@ GR_SWIG_INSTALL(
 
 install(
     FILES
-    gnuradio_swig_bug_workaround.h
     runtime_swig.i
     gnuradio.i
     basic_block.i

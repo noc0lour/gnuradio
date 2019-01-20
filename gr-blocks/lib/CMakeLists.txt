@@ -1,4 +1,4 @@
-# Copyright 2012-2014,2018 Free Software Foundation, Inc.
+# Copyright 2012-2014,2018-2019 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -266,11 +266,6 @@ endif(ENABLE_STATIC_LIBS)
 ########################################################################
 if(ENABLE_TESTING)
   include(GrTest)
-
-  include_directories(
-    ${GR_BLOCKS_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-  )
 
   list(APPEND test_gr_blocks_sources
     qa_block_tags.cc

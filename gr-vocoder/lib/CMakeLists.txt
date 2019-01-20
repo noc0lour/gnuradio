@@ -1,4 +1,4 @@
-# Copyright 2011,2013,2016 Free Software Foundation, Inc.
+# Copyright 2011,2013,2016,2019 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -16,17 +16,6 @@
 # along with GNU Radio; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
-
-########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${GR_VOCODER_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
-
-link_directories(${Boost_LIBRARY_DIRS})
 
 ########################################################################
 # Setup library
@@ -87,7 +76,6 @@ GR_INCLUDE_SUBDIRECTORY(g7xx)
 
 list(APPEND vocoder_libs
     gnuradio-runtime
-    ${Boost_LIBRARIES}
 )
 
 if(LIBCODEC2_LIBRARIES)
@@ -100,7 +88,13 @@ endif(LIBGSM_LIBRARIES)
 
 add_library(gnuradio-vocoder SHARED ${gr_vocoder_sources})
 target_link_libraries(gnuradio-vocoder ${vocoder_libs})
+target_include_directories(gnuradio-vocoder
+  PUBLIC $<INSTALL_INTERFACE:include>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+)
+
 GR_LIBRARY_FOO(gnuradio-vocoder)
+
 
 if(ENABLE_STATIC_LIBS)
   if(ENABLE_GR_CTRLPORT)

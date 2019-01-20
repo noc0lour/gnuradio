@@ -309,6 +309,15 @@ function(SWIG_ADD_SOURCE_TO_MODULE name outfiles infile)
   set (property "$<TARGET_PROPERTY:${name},INCLUDE_DIRECTORIES>")
   list (APPEND swig_source_file_flags "$<$<BOOL:${property}>:-I$<JOIN:${property},$<SEMICOLON>-I>>")
 
+  set (property "$<TARGET_PROPERTY:${name},INCLUDE_DIRECTORIES>")
+	get_source_file_property(use_target_include_dirs "${infile}" USE_TARGET_INCLUDE_DIRECTORIES)
+	if (use_target_include_dirs)
+	list (APPEND swig_source_file_flags "$<$<BOOL:${property}>:-I$<JOIN:${property},$<SEMICOLON>-I>>")
+  elseif(use_target_include_dirs STREQUAL "NOTFOUND")
+	# not defined at source level, rely on target level
+	list (APPEND swig_source_file_flags "$<$<AND:$<BOOL:$<TARGET_PROPERTY:${name},SWIG_USE_TARGET_INCLUDE_DIRECTORIES>>,$<BOOL:${property}>>:-I$<JOIN:${property},$<SEMICOLON>-I>>")
+  endif()
+
   set (property "$<TARGET_PROPERTY:${name},SWIG_COMPILE_DEFINITIONS>")
   list (APPEND swig_source_file_flags "$<$<BOOL:${property}>:-D$<JOIN:${property},$<SEMICOLON>-D>>")
   get_source_file_property (compile_definitions "${infile}" COMPILE_DEFINITIONS)

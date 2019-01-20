@@ -1,4 +1,4 @@
-# Copyright 2012,2016 Free Software Foundation, Inc.
+# Copyright 2012,2016,2019 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -23,12 +23,8 @@
 include(GrPython)
 include(GrSwig)
 
-set(GR_SWIG_INCLUDE_DIRS
-  ${GR_TRELLIS_INCLUDE_DIRS}
-  ${GR_DIGITAL_INCLUDE_DIRS}
-  ${GNURADIO_RUNTIME_SWIG_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
-)
+set(GR_SWIG_INCLUDE_DIRS $<TARGET_PROPERTY:runtime_swig,INCLUDE_DIRECTORIES>)
+set(GR_SWIG_TARGET_DEPS runtime_swig)
 
 set(GR_SWIG_LIBRARIES gnuradio-trellis gnuradio-digital)
 
