@@ -1,4 +1,4 @@
-# Copyright 2010-2016 Free Software Foundation, Inc.
+# Copyright 2010-2016,2019 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -52,6 +52,12 @@ endif(CMAKE_CROSSCOMPILING)
 #make the path to the executable appear in the cmake gui
 set(PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE} CACHE FILEPATH "python interpreter")
 set(QA_PYTHON_EXECUTABLE ${QA_PYTHON_EXECUTABLE} CACHE FILEPATH "python interpreter for QA tests")
+
+add_library(Python::Python INTERFACE IMPORTED)
+set_target_properties(Python::Python PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${PYTHON_INCLUDE_DIRS}"
+  INTERFACE_LINK_LIBRARIES "${PYTHON_LIBRARIES}"
+  )
 
 ########################################################################
 # Check for the existence of a python module:
