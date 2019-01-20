@@ -1,4 +1,4 @@
-# Copyright 2010-2011,2014 Free Software Foundation, Inc.
+# Copyright 2010-2011,2014,2019 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -22,14 +22,6 @@ if(DEFINED __INCLUDED_GR_MISC_UTILS_CMAKE)
 endif()
 set(__INCLUDED_GR_MISC_UTILS_CMAKE TRUE)
 
-########################################################################
-# Set global variable macro.
-# Used for subdirectories to export settings.
-# Example: include and library paths.
-########################################################################
-function(GR_SET_GLOBAL var)
-    set(${var} ${ARGN} CACHE INTERNAL "" FORCE)
-endfunction(GR_SET_GLOBAL)
 
 ########################################################################
 # Set the pre-processor definition if the condition is true.
