@@ -435,7 +435,7 @@ endif(NOT VOLK_FOUND)
 message(STATUS "  Override with -DENABLE_INTERNAL_VOLK=ON/OFF")
 
 # Handle logging
-find_package(Log4cpp REQUIRED)
+find_package(LOG4CPP REQUIRED)
 
 ########################################################################
 # Distribute the README file
