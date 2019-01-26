@@ -115,8 +115,8 @@ macro(GR_SWIG_MAKE name)
     endif()
 
     #prepend local swig directories
-    list(INSERT GR_SWIG_INCLUDE_DIRS 0 ${CMAKE_CURRENT_SOURCE_DIR})
-    list(INSERT GR_SWIG_INCLUDE_DIRS 0 ${CMAKE_CURRENT_BINARY_DIR})
+    list(INSERT GR_SWIG_INCLUDE_DIRS 0 "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>")
+    list(INSERT GR_SWIG_INCLUDE_DIRS 0 "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
 
     if (PYTHON3)
         set(py3 "-py3")
@@ -155,8 +155,8 @@ macro(GR_SWIG_INSTALL)
     CMAKE_PARSE_ARGUMENTS(GR_SWIG_INSTALL "" "DESTINATION" "TARGETS" ${ARGN})
 
     foreach(name ${GR_SWIG_INSTALL_TARGETS})
-        install(TARGETS ${name}
-            DESTINATION ${GR_SWIG_INSTALL_DESTINATION}
+      install(TARGETS ${name}
+          DESTINATION ${GR_SWIG_INSTALL_DESTINATION}
         )
 
         include(GrPython)

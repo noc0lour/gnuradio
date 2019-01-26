@@ -56,9 +56,27 @@ list(APPEND GR_SWIG_TARGET_DEPS pmt_swig)
 
 GR_SWIG_MAKE(runtime_swig runtime_swig.i)
 
-GR_SWIG_INSTALL(
-    TARGETS runtime_swig
-    DESTINATION ${GR_PYTHON_DIR}/gnuradio/gr
+install(
+  TARGETS runtime_swig
+  EXPORT runtime_swig-export
+  DESTINATION ${GR_PYTHON_DIR}/gnuradio/gr
+  )
+
+include(GrPython)
+GR_PYTHON_INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/runtime_swig.py
+  DESTINATION ${GR_PYTHON_DIR}/gnuradio/gr
+  DEPENDS runtime_swig
+)
+
+GR_LIBTOOL(
+  TARGET runtime_swig
+  DESTINATION ${GR_PYTHON_DIR}/gnuradio/gr
+)
+
+install(EXPORT runtime_swig-export
+  FILE runtime_swigTargets.cmake
+  NAMESPACE gnuradio::
+  DESTINATION ${GR_LIBRARY_DIR}/cmake/gnuradio
 )
 
 install(
