@@ -380,15 +380,15 @@ message(STATUS "")
 message(STATUS "Configuring VOLK support...")
 
 OPTION(ENABLE_INTERNAL_VOLK "Enable internal VOLK only" ON)
-unSET(VOLK_FOUND)
+UNSET(Volk_FOUND)
 if(NOT ENABLE_INTERNAL_VOLK)
     find_package(Volk)
     set(GR_VOLK_LIB "Volk::volk")
-    if(NOT VOLK_FOUND)
+    if(NOT Volk_FOUND)
         message(STATUS "  External VOLK not found; checking internal.")
     endif()
 endif()
-if(NOT VOLK_FOUND)
+if(NOT Volk_FOUND)
     find_file(INTREE_VOLK_FOUND
         volk/volk_common.h
         PATHS ${CMAKE_CURRENT_SOURCE_DIR}/volk/include
@@ -430,7 +430,7 @@ else()
 
     get_filename_component(VOLK_INSTALL_LIBRARY_DIR "${VOLK_LIBRARIES}" DIRECTORY)
     SET(VOLK_INSTALL_INCLUDE_DIR ${VOLK_INCLUDE_DIRS})
-endif(NOT VOLK_FOUND)
+endif(NOT Volk_FOUND)
 
 message(STATUS "  Override with -DENABLE_INTERNAL_VOLK=ON/OFF")
 
@@ -448,7 +448,6 @@ install(
 ########################################################################
 # The following dependency libraries are needed by all gr modules:
 ########################################################################
-list(APPEND GR_TEST_TARGET_DEPS volk gnuradio-runtime)
 list(APPEND GR_TEST_PYTHON_DIRS
     ${CMAKE_BINARY_DIR}/gnuradio-runtime/python
     ${CMAKE_SOURCE_DIR}/gnuradio-runtime/python

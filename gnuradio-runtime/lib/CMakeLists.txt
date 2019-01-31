@@ -245,7 +245,8 @@ if(ENABLE_TESTING)
   foreach(qa_file ${test_gnuradio_runtime_sources})
     GR_ADD_CPP_TEST("runtime_${qa_file}"
       ${CMAKE_CURRENT_SOURCE_DIR}/${qa_file}
-    )
+      )
+
   endforeach(qa_file)
 
   # Math tests:
