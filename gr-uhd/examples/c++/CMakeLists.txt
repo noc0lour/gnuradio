@@ -21,7 +21,7 @@
 # Build executable
 ########################################################################
 add_executable(tags_demo tags_demo.cc)
-target_link_libraries(tags_demo gnuradio-uhd ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(tags_demo gnuradio-uhd)
 
 INSTALL(TARGETS
     tags_demo

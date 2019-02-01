@@ -42,8 +42,8 @@ if(MSVC)
 endif(MSVC)
 
 list(APPEND uhd_libs
-    gnuradio-runtime
-    ${UHD_LIBRARIES}
+  gnuradio-runtime
+  UHD::UHD
 )
 
 add_library(gnuradio-uhd SHARED ${gr_uhd_sources})
@@ -53,7 +53,7 @@ target_include_directories(gnuradio-uhd
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
   )
-GR_LIBRARY_FOO(gnuradio-uhd)
+GR_LIBRARY_FOO(gnuradio-uhd UHD)
 
 ########################################################################
 # Build static libraries if enabled
