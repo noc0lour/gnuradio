@@ -30,8 +30,6 @@ include(GrPython)
 
 find_package(Qt5Widgets QUIET)
 set(QT_FOUND ${Qt5Widgets_FOUND})
-set(QT_LIBRARIES ${Qt5Widgets_LIBRARIES})
-set(QT_INCLUDE_DIRS ${Qt5Widgets_INCLUDE_DIRS})
 
 GR_PYTHON_CHECK_MODULE("PyQt5" PyQt5 True PYQT5_FOUND)
 

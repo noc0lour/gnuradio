@@ -126,9 +126,9 @@ list(APPEND qtgui_libs
     gnuradio-fft
     gnuradio-filter
     ${GR_VOLK_LIB}
-    ${QWT_LIBRARIES}
-    ${QT_LIBRARIES}
-    ${FFTW3F_LIBRARIES}
+    qwt::qwt
+    fftw3f::fftw3f
+    Qt5::Widgets
 )
 if (WIN32)
   list(APPEND qtgui_libs
@@ -140,7 +140,7 @@ include(GrPython)
 if(ENABLE_PYTHON)
   add_definitions(-DENABLE_PYTHON)
   list(APPEND qtgui_libs
-    ${PYTHON_LIBRARIES}
+    Python::Python
   )
 endif(ENABLE_PYTHON)
 
@@ -151,12 +151,10 @@ target_include_directories(gnuradio-qtgui
   PUBLIC
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
-  ${QWT_INCLUDE_DIRS}
-  ${PYTHON_INCLUDE_DIRS}
   PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
   )
-GR_LIBRARY_FOO(gnuradio-qtgui)
+GR_LIBRARY_FOO(gnuradio-qtgui QWT Qt5Widgets FFTW3f)
 
 if(ENABLE_STATIC_LIBS)
   if(ENABLE_GR_CTRLPORT)
