@@ -455,6 +455,15 @@ list(APPEND GR_TEST_PYTHON_DIRS
     ${CMAKE_BINARY_DIR}/gnuradio-runtime/swig
 )
 
+# Install our Cmake modules into $prefix/lib/cmake/gnuradio
+# See "Package Configuration Files" on page:
+#    http://www.cmake.org/Wiki/CMake/Tutorials/Packaging
+
+if(NOT CMAKE_MODULES_DIR)
+  SET(CMAKE_MODULES_DIR lib${LIB_SUFFIX}/cmake)
+endif(NOT CMAKE_MODULES_DIR)
+
+
 # Note that above we put the binary gnuradio-runtime/python directory
 # before the source directory. This is due to a quirk with ControlPort
 # and how slice generates files and names. We want the QA and
@@ -505,13 +514,6 @@ if(ENABLE_GR_CTRLPORT)
   endif(CTRLPORT_BACKENDS GREATER 0)
 endif(ENABLE_GR_CTRLPORT)
 
-# Install our Cmake modules into $prefix/lib/cmake/gnuradio
-# See "Package Configuration Files" on page:
-#    http://www.cmake.org/Wiki/CMake/Tutorials/Packaging
-
-if(NOT CMAKE_MODULES_DIR)
-  SET(CMAKE_MODULES_DIR lib${LIB_SUFFIX}/cmake)
-endif(NOT CMAKE_MODULES_DIR)
 
 # Install all other cmake files into same directory
 file(GLOB cmake_others "cmake/Modules/*.cmake")
