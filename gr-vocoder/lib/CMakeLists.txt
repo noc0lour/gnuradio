@@ -77,13 +77,15 @@ GR_INCLUDE_SUBDIRECTORY(g7xx)
 list(APPEND vocoder_libs
     gnuradio-runtime
 )
-
+set(external_deps "")
 if(LIBCODEC2_LIBRARIES)
-  list(APPEND vocoder_libs ${LIBCODEC2_LIBRARIES})
+  list(APPEND vocoder_libs CODEC2::CODEC2)
+  list(APPEND external_deps Codec2)
 endif(LIBCODEC2_LIBRARIES)
 
 if(LIBGSM_LIBRARIES)
-  list(APPEND vocoder_libs ${LIBGSM_LIBRARIES})
+  list(APPEND vocoder_libs GSM::GSM)
+  list(APPEND external_deps GSM)
 endif(LIBGSM_LIBRARIES)
 
 add_library(gnuradio-vocoder SHARED ${gr_vocoder_sources})
@@ -93,7 +95,7 @@ target_include_directories(gnuradio-vocoder
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
 )
 
-GR_LIBRARY_FOO(gnuradio-vocoder)
+GR_LIBRARY_FOO(gnuradio-vocoder ${external_deps})
 
 
 if(ENABLE_STATIC_LIBS)
