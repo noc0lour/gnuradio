@@ -26,8 +26,8 @@ set(pmt_sources
 )
 
 list(APPEND gnuradio_pmt_libs
-    ${Boost_LIBRARIES}
-    ${LOG4CPP_LIBRARIES}
+  Boost::boost
+  Log4Cpp::log4cpp
 )
 
 #Add Windows DLL resource file if using MSVC

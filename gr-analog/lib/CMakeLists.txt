@@ -72,8 +72,6 @@ list(APPEND analog_libs
     gnuradio-runtime
     gnuradio-blocks
     gnuradio-filter
-    ${VOLK_LIBRARIES}
-    ${Boost_LIBRARIES}
 )
 
 add_library(gnuradio-analog SHARED ${analog_sources})

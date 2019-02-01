@@ -52,9 +52,10 @@ if(MSVC)
 endif(MSVC)
 
 list(APPEND zeromq_libs
-    gnuradio-runtime
-    ${Boost_LIBRARIES}
-    ${ZEROMQ_LIBRARIES}
+  gnuradio-runtime
+  Boost::boost
+  Boost::thread
+  ZeroMQ::ZeroMQ
 )
 
 add_library(gnuradio-zeromq SHARED ${zeromq_sources})
@@ -64,7 +65,7 @@ target_include_directories(gnuradio-zeromq
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
   )
-GR_LIBRARY_FOO(gnuradio-zeromq)
+GR_LIBRARY_FOO(gnuradio-zeromq ZeroMQ)
 
 if(ENABLE_STATIC_LIBS)
   if(ENABLE_GR_CTRLPORT)

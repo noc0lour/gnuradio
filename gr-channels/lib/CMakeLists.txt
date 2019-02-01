@@ -51,8 +51,7 @@ list(APPEND channels_libs
     gnuradio-filter
     gnuradio-analog
     gnuradio-blocks
-    ${VOLK_LIBRARIES}
-    ${Boost_LIBRARIES}
+    Boost::boost
 )
 
 add_library(gnuradio-channels SHARED ${channels_sources})

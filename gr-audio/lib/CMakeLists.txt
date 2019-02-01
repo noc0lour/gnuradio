@@ -19,7 +19,7 @@
 
 include(GrComponent)
 
-list(APPEND gr_audio_libs gnuradio-runtime ${Boost_LIBRARIES})
+list(APPEND gr_audio_libs gnuradio-runtime)
 list(APPEND gr_audio_sources audio_registry.cc)
 list(APPEND gr_audio_confs ${CMAKE_CURRENT_SOURCE_DIR}/gr-audio.conf)
 

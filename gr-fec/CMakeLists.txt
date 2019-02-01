@@ -59,7 +59,6 @@ endif(ENABLE_GRC)
 add_subdirectory(examples)
 add_subdirectory(docs)
 add_subdirectory(ldpc_alist)
-add_subdirectory(apps)
 
 ########################################################################
 # Create Pkg Config File

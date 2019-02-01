@@ -127,7 +127,6 @@ list(APPEND qtgui_libs
     gnuradio-filter
     ${GR_VOLK_LIB}
     qwt::qwt
-    fftw3f::fftw3f
     Qt5::Widgets
 )
 if (WIN32)
@@ -153,7 +152,7 @@ target_include_directories(gnuradio-qtgui
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
   PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}
-  )
+ )
 GR_LIBRARY_FOO(gnuradio-qtgui QWT Qt5Widgets FFTW3f)
 
 if(ENABLE_STATIC_LIBS)
