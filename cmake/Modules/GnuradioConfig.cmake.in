@@ -42,12 +42,33 @@ find_dependency(Volk)
 include("${CMAKE_CURRENT_LIST_DIR}/gnuradio-pmtTargets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/gnuradio-runtimeTargets.cmake")
 cmake_policy(SET CMP0012 NEW)
+cmake_policy(SET CMP0057 NEW)
 if(@ENABLE_PYTHON@)
 include("${CMAKE_CURRENT_LIST_DIR}/runtime_swigTargets.cmake")
 endif()
 
-foreach(component ${Gnuradio_FIND_COMPONENTS})
-  if(NOT TARGET gnuradio::gnuradio-${component})
-  include("${CMAKE_CURRENT_LIST_DIR}/gnuradio-${component}Targets.cmake")
-endif()
-endforeach(component)
+set(GR_COMPONENTS
+  blocks
+  fec
+  fft
+  filter
+  analog
+  digital
+  dtv
+  audio
+  comedi
+  channels
+  qtgui
+  trellis
+  uhd
+  video-sdl
+  vocoder
+  wavelet
+  zeromq
+  )
+
+foreach(target ${GR_COMPONENTS})
+  if (${target} IN_LIST Gnuradio_FIND_COMPONENTS)
+    include("${CMAKE_CURRENT_LIST_DIR}/gnuradio-${target}Config.cmake")
+  endif()
+endforeach(target)
