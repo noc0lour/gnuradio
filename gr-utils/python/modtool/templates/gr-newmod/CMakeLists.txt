@@ -47,7 +47,7 @@ set(VERSION_INFO_API_COMPAT    0)
 set(VERSION_INFO_MINOR_VERSION 0)
 set(VERSION_INFO_MAINT_VERSION git)
 
-cmake_policy(SET CMP0011 New)
+cmake_policy(SET CMP0011 NEW)
 
 ########################################################################
 # Compiler specific setup
@@ -66,9 +66,15 @@ find_package(Gnuradio "3.8" REQUIRED)
 include(GrVersion)
 
 include(GrPlatform) #define LIB_SUFFIX
+
+if(NOT CMAKE_MODULES_DIR)
+  set(CMAKE_MODULES_DIR lib${LIB_SUFFIX}/cmake)
+endif(NOT CMAKE_MODULES_DIR)
+
 set(GR_RUNTIME_DIR      bin)
 set(GR_LIBRARY_DIR      lib${LIB_SUFFIX})
 set(GR_INCLUDE_DIR      include/howto)
+SET(GR_CMAKE_DIR        ${CMAKE_MODULES_DIR}/howto)
 set(GR_DATA_DIR         share)
 set(GR_PKG_DATA_DIR     ${GR_DATA_DIR}/${CMAKE_PROJECT_NAME})
 set(GR_DOC_DIR          ${GR_DATA_DIR}/doc)
@@ -124,10 +130,6 @@ configure_file(
 add_custom_target(uninstall
     ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
     )
-
-if(NOT CMAKE_MODULES_DIR)
-  set(CMAKE_MODULES_DIR lib${LIB_SUFFIX}/cmake)
-endif(NOT CMAKE_MODULES_DIR)
 
 
 ########################################################################
