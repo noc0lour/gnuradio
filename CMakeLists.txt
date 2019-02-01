@@ -509,10 +509,22 @@ endif(ENABLE_GR_CTRLPORT)
 # See "Package Configuration Files" on page:
 #    http://www.cmake.org/Wiki/CMake/Tutorials/Packaging
 
-configure_file(
+if(NOT CMAKE_MODULES_DIR)
+  SET(CMAKE_MODULES_DIR lib${LIB_SUFFIX}/cmake)
+endif(NOT CMAKE_MODULES_DIR)
+
+# Install all other cmake files into same directory
+file(GLOB cmake_others "cmake/Modules/*.cmake")
+list(REMOVE_ITEM cmake_others
+    "${CMAKE_SOURCE_DIR}/cmake/Modules/FindGnuradio.cmake"
+)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
   ${CMAKE_SOURCE_DIR}/cmake/Modules/GnuradioConfig.cmake.in
   ${CMAKE_BINARY_DIR}/cmake/Modules/GnuradioConfig.cmake
-@ONLY)
+  INSTALL_DESTINATION ${CMAKE_MODULES_DIR}/gnuradio
+  )
 
 configure_file(
   ${CMAKE_SOURCE_DIR}/cmake/Modules/GnuradioConfigVersion.cmake.in
@@ -524,15 +536,6 @@ SET(cmake_configs
   ${CMAKE_BINARY_DIR}/cmake/Modules/GnuradioConfigVersion.cmake
 )
 
-if(NOT CMAKE_MODULES_DIR)
-  SET(CMAKE_MODULES_DIR lib${LIB_SUFFIX}/cmake)
-endif(NOT CMAKE_MODULES_DIR)
-
-# Install all other cmake files into same directory
-file(GLOB cmake_others "cmake/Modules/*.cmake")
-list(REMOVE_ITEM cmake_others
-    "${CMAKE_SOURCE_DIR}/cmake/Modules/FindGnuradio.cmake"
-)
 
 install(
   FILES ${cmake_configs} ${cmake_others}
