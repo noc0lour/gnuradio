@@ -34,7 +34,7 @@ GR_REGISTER_COMPONENT("gr-fft" ENABLE_GR_FFT
     Boost_FOUND
     ENABLE_GNURADIO_RUNTIME
     ENABLE_GR_BLOCKS
-    FFTW3F_FOUND
+    FFTW3f_FOUND
 )
 
 ########################################################################

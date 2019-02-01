@@ -37,8 +37,8 @@ endif(ENABLE_GR_CTRLPORT)
 
 list(APPEND fft_libs
   gnuradio-runtime
+  fftw3f::fftw3f
   ${GR_VOLK_LIB}
-  ${FFTW3F_LIBRARIES}
 )
 
 #Add Windows DLL resource file if using MSVC
@@ -67,7 +67,7 @@ target_include_directories(gnuradio-fft
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
   )
-GR_LIBRARY_FOO(gnuradio-fft)
+GR_LIBRARY_FOO(gnuradio-fft FFTW3f)
 
 if(ENABLE_STATIC_LIBS)
   if(ENABLE_GR_CTRLPORT)

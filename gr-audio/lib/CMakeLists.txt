@@ -19,18 +19,6 @@
 
 include(GrComponent)
 
-########################################################################
-# Setup the include and linker paths
-########################################################################
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${GR_AUDIO_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
-
-link_directories(${Boost_LIBRARY_DIRS})
-
 list(APPEND gr_audio_libs gnuradio-runtime ${Boost_LIBRARIES})
 list(APPEND gr_audio_sources audio_registry.cc)
 list(APPEND gr_audio_confs ${CMAKE_CURRENT_SOURCE_DIR}/gr-audio.conf)
@@ -40,14 +28,15 @@ list(APPEND gr_audio_confs ${CMAKE_CURRENT_SOURCE_DIR}/gr-audio.conf)
 ########################################################################
 find_package(ALSA)
 
+set(audio_deps "")
+
 if((ALSA_FOUND) AND NOT (CMAKE_SYSTEM_NAME STREQUAL "kFreeBSD") AND NOT (CMAKE_SYSTEM_NAME STREQUAL GNU))
 
     add_definitions(-DALSA_FOUND)
     GR_APPEND_SUBCOMPONENT("alsa")
 
-    include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/alsa)
-    include_directories(${ALSA_INCLUDE_DIRS})
-    list(APPEND gr_audio_libs ${ALSA_LIBRARIES})
+    list(APPEND gr_audio_libs ALSA::ALSA)
+    list(APPEND audio_deps "ALSA")
     list(APPEND gr_audio_sources
         ${CMAKE_CURRENT_SOURCE_DIR}/alsa/alsa_impl.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/alsa/alsa_source.cc
@@ -67,8 +56,9 @@ if(OSS_FOUND)
     add_definitions(-DOSS_FOUND)
     GR_APPEND_SUBCOMPONENT("oss")
 
-    include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/oss)
-    include_directories(${OSS_INCLUDE_DIRS})
+    list(APPEND gr_audio_libs OSS::OSS)
+    list(APPEND audio_deps "OSS")
+
     list(APPEND gr_audio_sources
         ${CMAKE_CURRENT_SOURCE_DIR}/oss/oss_source.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/oss/oss_sink.cc
@@ -81,16 +71,16 @@ endif(OSS_FOUND)
 ########################################################################
 ## Jack Support
 ########################################################################
-find_package(Jack)
+find_package(JACK)
 
 if(JACK_FOUND)
 
     add_definitions(-DJACK_FOUND)
     GR_APPEND_SUBCOMPONENT("jack")
 
-    include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/jack)
-    include_directories(${JACK_INCLUDE_DIRS})
-    list(APPEND gr_audio_libs ${JACK_LIBRARIES})
+    list(APPEND gr_audio_libs JACK::JACK)
+    list(APPEND audio_deps "JACK")
+
     add_definitions(${JACK_DEFINITIONS})
     list(APPEND gr_audio_sources
         ${CMAKE_CURRENT_SOURCE_DIR}/jack/jack_impl.cc
@@ -115,7 +105,6 @@ if(AUDIO_UNIT_H AND AUDIO_TOOLBOX_H)
 
     set(OSX_AUDIO_VALID 1 CACHE INTERNAL "OSX Audio is valid")
 
-    include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/osx)
     list(APPEND gr_audio_libs
         "-framework AudioUnit"
         "-framework CoreAudio"
@@ -139,17 +128,15 @@ endif(AUDIO_UNIT_H AND AUDIO_TOOLBOX_H)
 ########################################################################
 ## PortAudio Support
 ########################################################################
-find_package(Portaudio)
+find_package(PORTAUDIO)
 
 if(PORTAUDIO2_FOUND)
 
     add_definitions(-DPORTAUDIO_FOUND)
     GR_APPEND_SUBCOMPONENT("portaudio")
 
-    include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/portaudio)
-    include_directories(${PORTAUDIO_INCLUDE_DIRS})
-    list(APPEND gr_audio_libs ${PORTAUDIO_LIBRARIES})
-    add_definitions(${PORTAUDIO_DEFINITIONS})
+    list(APPEND gr_audio_libs Portaudio::Portaudio)
+    list(APPEND audio_deps "PORTAUDIO")
     list(APPEND gr_audio_sources
         ${CMAKE_CURRENT_SOURCE_DIR}/portaudio/portaudio_impl.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/portaudio/portaudio_source.cc
@@ -167,7 +154,6 @@ if(WIN32)
     add_definitions(-DWIN32_FOUND)
     GR_APPEND_SUBCOMPONENT("windows")
 
-    include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/windows)
     list(APPEND gr_audio_libs winmm.lib)
     list(APPEND gr_audio_sources
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/windows_source.cc
@@ -200,7 +186,7 @@ target_include_directories(gnuradio-audio
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
   )
-GR_LIBRARY_FOO(gnuradio-audio)
+GR_LIBRARY_FOO(gnuradio-audio ${audio_deps})
 
 install(FILES ${gr_audio_confs} DESTINATION ${GR_PREFSDIR})
 
