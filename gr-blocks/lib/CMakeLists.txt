@@ -213,9 +213,8 @@ IF(MSVC)
 ENDIF(MSVC)
 
 list(APPEND blocks_libs
-    gnuradio-runtime
-    ${VOLK_LIBRARIES}
-    ${Boost_LIBRARIES}
+  gnuradio-runtime
+  ${GR_VOLK_LIB}
 )
 
 add_library(gnuradio-blocks SHARED ${gr_blocks_sources})
@@ -278,8 +277,6 @@ if(ENABLE_TESTING)
     qa_set_msg_handler.cc
   )
   list(APPEND GR_TEST_TARGET_DEPS gnuradio-blocks
-    ${Boost_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT}
   )
 
   foreach(qa_file ${test_gr_blocks_sources})
