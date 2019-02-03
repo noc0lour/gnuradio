@@ -4,7 +4,6 @@
 #  JACK_FOUND - system has jack
 #  JACK_INCLUDE_DIRS - the jack include directory
 #  JACK_LIBRARIES - Link these to use jack
-#  JACK_DEFINITIONS - Compiler switches required for using jack
 #
 #  Copyright (c) 2008 Andreas Schneider <mail@cynapses.org>
 #  Modified for other libraries by Lasse Kärkkäinen <tronic>
