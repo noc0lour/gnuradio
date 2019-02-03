@@ -32,19 +32,18 @@ if(MSVC)
     )
 endif(MSVC)
 
-set(gr_fec_rs_sources
+add_library(gr_fec_rs OBJECT
     ${CMAKE_CURRENT_SOURCE_DIR}/encode_rs.c
     ${CMAKE_CURRENT_SOURCE_DIR}/decode_rs.c
     ${CMAKE_CURRENT_SOURCE_DIR}/init_rs.c
-)
-add_library(gr_fec_rs OBJECT ${gr_fec_rs_sources})
+  )
 target_include_directories(gr_fec_rs
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>
   PRIVATE $<TARGET_PROPERTY:gnuradio-runtime,INCLUDE_DIRECTORIES>
   )
 set_target_properties(gr_fec_rs PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-list(APPEND gnuradio_fec_sources $<TARGET_OBJECTS:gr_fec_rs>)
+target_sources(gnuradio-fec PRIVATE $<TARGET_OBJECTS:gr_fec_rs>)
 
 ########################################################################
 # Register unit tests

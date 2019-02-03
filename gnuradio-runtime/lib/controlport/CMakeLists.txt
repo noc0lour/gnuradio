@@ -22,7 +22,7 @@ if(ENABLE_GR_CTRLPORT)
 # Keep track of the number of backends ControlPort supports
 SET(CTRLPORT_BACKENDS 0)
 
-list(APPEND gnuradio_ctrlport_sources
+target_sources(gnuradio-runtime PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/rpcmanager.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/rpcserver_aggregator.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/rpcserver_booter_aggregator.cc
@@ -58,7 +58,8 @@ add_custom_command(
   OUTPUT ${gnuradio_thrift_generated_sources}
   COMMAND ${THRIFT_BIN} --gen cpp -out ${CMAKE_CURRENT_BINARY_DIR}/thrift/ ${CMAKE_CURRENT_SOURCE_DIR}/thrift/gnuradio.thrift
   )
-list(APPEND gnuradio_ctrlport_sources
+
+target_sources(gnuradio-runtime PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/thrift/rpcserver_thrift.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/thrift/rpcpmtconverters_thrift.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/thrift/rpcserver_booter_thrift.cc
@@ -67,7 +68,7 @@ list(APPEND gnuradio_ctrlport_sources
   ${gnuradio_thrift_generated_sources}
   )
 
-list(APPEND gnuradio_runtime_libs
+target_link_libraries(gnuradio-runtime PUBLIC
   Thrift::thrift
   )
 

@@ -45,39 +45,6 @@ function(GR_CHECK_HDR_N_DEF hdr def)
 endfunction(GR_CHECK_HDR_N_DEF)
 
 ########################################################################
-# Include subdirectory macro.
-# Sets the CMake directory variables,
-# includes the subdirectory CMakeLists.txt,
-# resets the CMake directory variables.
-#
-# This macro includes subdirectories rather than adding them
-# so that the subdirectory can affect variables in the level above.
-# This provides a work-around for the lack of convenience libraries.
-# This way a subdirectory can append to the list of library sources.
-########################################################################
-macro(GR_INCLUDE_SUBDIRECTORY subdir)
-    #insert the current directories on the front of the list
-    list(INSERT _cmake_source_dirs 0 ${CMAKE_CURRENT_SOURCE_DIR})
-    list(INSERT _cmake_binary_dirs 0 ${CMAKE_CURRENT_BINARY_DIR})
-
-    #set the current directories to the names of the subdirs
-    set(CMAKE_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${subdir})
-    set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/${subdir})
-
-    #include the subdirectory CMakeLists to run it
-    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-    include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
-
-    #reset the value of the current directories
-    list(GET _cmake_source_dirs 0 CMAKE_CURRENT_SOURCE_DIR)
-    list(GET _cmake_binary_dirs 0 CMAKE_CURRENT_BINARY_DIR)
-
-    #pop the subdir names of the front of the list
-    list(REMOVE_AT _cmake_source_dirs 0)
-    list(REMOVE_AT _cmake_binary_dirs 0)
-endmacro(GR_INCLUDE_SUBDIRECTORY)
-
-########################################################################
 # Check if a compiler flag works and conditionally set a compile define.
 #  - flag the compiler flag to check for
 #  - have the variable to set with result

@@ -19,13 +19,11 @@
 
 # These are convenience libraries of 3rd party code.
 # Change to test for distro provided packages
-GR_INCLUDE_SUBDIRECTORY(reed-solomon)
-GR_INCLUDE_SUBDIRECTORY(viterbi)
 
 ########################################################################
 # Setup library
 ########################################################################
-list(APPEND gnuradio_fec_sources
+add_library(gnuradio-fec SHARED
   generic_decoder.cc
   generic_encoder.cc
   decoder_impl.cc
@@ -66,7 +64,20 @@ list(APPEND gnuradio_fec_sources
   scl_list.cc
   polar_encoder_systematic.cc
   polar_decoder_sc_systematic.cc
-)
+  )
+target_include_directories(gnuradio-fec
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
+
+add_subdirectory(reed-solomon)
+
+target_sources(gnuradio-fec PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/viterbi/metrics.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/viterbi/tab.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/viterbi/viterbi.c
+  )
 
 #Add Windows DLL resource file if using MSVC
 if(MSVC)
@@ -77,21 +88,20 @@ if(MSVC)
         ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-fec.rc
     @ONLY)
 
-    list(APPEND gnuradio_fec_sources
+    target_sources(gnuradio-fec PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-fec.rc
     )
 endif(MSVC)
 
-list(APPEND gnuradio_fec_libs
+target_link_libraries(gnuradio-fec PUBLIC
     gnuradio-runtime
     gnuradio-blocks
 )
 
 # Only include the LDPC work if we have GSL installed
 if(GSL_FOUND)
-  list(APPEND gnuradio_fec_libs gsl::gsl)
-
-  list(APPEND gnuradio_fec_sources
+  target_link_libraries(gnuradio-fec PUBLIC gsl::gsl)
+  target_sources(gnuradio-fec PRIVATE
     ldpc_bit_flip_decoder_impl.cc
     ldpc_par_mtrx_encoder_impl.cc
     ldpc_gen_mtrx_encoder_impl.cc
@@ -101,13 +111,6 @@ if(GSL_FOUND)
     )
 endif(GSL_FOUND)
 
-add_library(gnuradio-fec SHARED ${gnuradio_fec_sources})
-target_link_libraries(gnuradio-fec ${gnuradio_fec_libs})
-target_include_directories(gnuradio-fec
-  PUBLIC
-  $<INSTALL_INTERFACE:include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
-  )
 GR_LIBRARY_FOO(gnuradio-fec)
 
 if(ENABLE_STATIC_LIBS)

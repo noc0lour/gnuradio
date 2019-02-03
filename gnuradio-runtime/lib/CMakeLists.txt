@@ -35,27 +35,23 @@ string(REPLACE "\\" "\\\\" prefix "${prefix}")
 string(REPLACE "\\" "\\\\" SYSCONFDIR "${SYSCONFDIR}")
 string(REPLACE "\\" "\\\\" GR_PREFSDIR "${GR_PREFSDIR}")
 
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/constants.cc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/constants.cc
-    ESCAPE_QUOTES
-@ONLY)
-
-list(APPEND gnuradio_runtime_sources ${CMAKE_CURRENT_BINARY_DIR}/constants.cc)
 
 #########################################################################
 # Include subdirs rather to populate to the sources lists.
 ########################################################################
 add_subdirectory(pmt)
-GR_INCLUDE_SUBDIRECTORY(messages)
-GR_INCLUDE_SUBDIRECTORY(thread)
-GR_INCLUDE_SUBDIRECTORY(math)
-GR_INCLUDE_SUBDIRECTORY(controlport)
 
 ########################################################################
 # Setup library
 ########################################################################
-list(APPEND gnuradio_runtime_sources
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/constants.cc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/constants.cc
+    ESCAPE_QUOTES
+    @ONLY)
+
+add_library(gnuradio-runtime SHARED
+  ${CMAKE_CURRENT_BINARY_DIR}/constants.cc
   basic_block.cc
   block.cc
   block_detail.cc
@@ -101,8 +97,34 @@ list(APPEND gnuradio_runtime_sources
   vmcircbuf_mmap_tmpfile.cc
   vmcircbuf_prefs.cc
   vmcircbuf_sysv_shm.cc
-  ${gnuradio_ctrlport_sources}
-)
+  )
+
+# Messages
+target_sources(gnuradio-runtime PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/messages/msg_accepter.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/messages/msg_accepter_msgq.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/messages/msg_producer.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/messages/msg_queue.cc
+  )
+
+# Thread
+target_sources(gnuradio-runtime PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/thread/thread.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/thread/thread_body_wrapper.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/thread/thread_group.cc
+  )
+
+# Math
+target_sources(gnuradio-runtime PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/math/fast_atan2f.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/math/fxpt.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/math/random.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/math/sincos.cc
+  )
+
+add_subdirectory(controlport)
+
+
 
 list(APPEND gnuradio_runtime_libs
   gnuradio-pmt
@@ -173,7 +195,6 @@ endif(TRY_SHM_VMCIRCBUF)
 #######################################################
 # SHARED LIB BUILD
 #######################################################
-add_library(gnuradio-runtime SHARED ${gnuradio_runtime_sources})
 target_link_libraries(gnuradio-runtime ${gnuradio_runtime_libs})
 
 target_include_directories(gnuradio-runtime

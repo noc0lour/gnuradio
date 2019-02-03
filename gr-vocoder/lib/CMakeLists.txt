@@ -20,7 +20,7 @@
 ########################################################################
 # Setup library
 ########################################################################
-list(APPEND gr_vocoder_sources
+add_library(gnuradio-vocoder SHARED
     alaw_decode_bs_impl.cc
     alaw_encode_sb_impl.cc
     cvsd_decode_bs_impl.cc
@@ -34,22 +34,30 @@ list(APPEND gr_vocoder_sources
     ulaw_decode_bs_impl.cc
     ulaw_encode_sb_impl.cc
 )
+target_include_directories(gnuradio-vocoder
+  PUBLIC $<INSTALL_INTERFACE:include>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+)
+target_link_libraries(gnuradio-vocoder PUBLIC
+    gnuradio-runtime
+)
+
 if(LIBCODEC2_FOUND)
-  list(APPEND gr_vocoder_sources
+  target_sources(gnuradio-vocoder PRIVATE
     codec2.cc
     codec2_decode_ps_impl.cc
     codec2_encode_sp_impl.cc
     )
 endif(LIBCODEC2_FOUND)
 if(LIBCODEC2_HAS_FREEDV_API)
-  list(APPEND gr_vocoder_sources
+  target_sources(gnuradio-vocoder PRIVATE
     freedv_api.cc
     freedv_rx_ss_impl.cc
     freedv_tx_ss_impl.cc
     )
 endif(LIBCODEC2_HAS_FREEDV_API)
 if(LIBGSM_FOUND)
-  list(APPEND gr_vocoder_sources
+  target_sources(gnuradio-vocoder PRIVATE
     gsm_fr_decode_ps_impl.cc
     gsm_fr_encode_sp_impl.cc
     )
@@ -72,28 +80,25 @@ endif(MSVC)
 ########################################################################
 # Include subdirs rather to populate to the sources lists.
 ########################################################################
-GR_INCLUDE_SUBDIRECTORY(g7xx)
-
-list(APPEND vocoder_libs
-    gnuradio-runtime
+target_sources(gnuradio-vocoder PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/g7xx/g711.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/g7xx/g72x.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/g7xx/g721.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/g7xx/g723_24.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/g7xx/g723_40.c
 )
+
 set(external_deps "")
 if(LIBCODEC2_LIBRARIES)
-  list(APPEND vocoder_libs CODEC2::CODEC2)
+  target_link_libraries(gnuradio-vocoder PUBLIC CODEC2::CODEC2)
   list(APPEND external_deps Codec2)
 endif(LIBCODEC2_LIBRARIES)
 
 if(LIBGSM_LIBRARIES)
-  list(APPEND vocoder_libs GSM::GSM)
+  target_link_libraries(gnuradio-vocoder PUBLIC GSM::GSM)
   list(APPEND external_deps GSM)
 endif(LIBGSM_LIBRARIES)
 
-add_library(gnuradio-vocoder SHARED ${gr_vocoder_sources})
-target_link_libraries(gnuradio-vocoder ${vocoder_libs})
-target_include_directories(gnuradio-vocoder
-  PUBLIC $<INSTALL_INTERFACE:include>
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
-)
 
 GR_LIBRARY_FOO(gnuradio-vocoder ${external_deps})
 
