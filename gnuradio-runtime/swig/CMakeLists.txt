@@ -68,11 +68,6 @@ GR_PYTHON_INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/runtime_swig.py
   DEPENDS runtime_swig
 )
 
-GR_LIBTOOL(
-  TARGET runtime_swig
-  DESTINATION ${GR_PYTHON_DIR}/gnuradio/gr
-)
-
 install(EXPORT runtime_swig-export
   FILE runtime_swigTargets.cmake
   NAMESPACE gnuradio::

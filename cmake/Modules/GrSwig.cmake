@@ -165,11 +165,6 @@ macro(GR_SWIG_INSTALL)
           DEPENDS ${name}
         )
 
-        GR_LIBTOOL(
-            TARGET ${name}
-            DESTINATION ${GR_SWIG_INSTALL_DESTINATION}
-        )
-
     endforeach(name)
 
 endmacro(GR_SWIG_INSTALL)
