@@ -22,7 +22,7 @@ include(GrComponent)
 ########################################################################
 # Setup library
 ########################################################################
-add_library(gnuradio-audio SHARED audio_registry.cc)
+add_library(gnuradio-audio audio_registry.cc)
 target_link_libraries(gnuradio-audio PUBLIC gnuradio-runtime)
 target_include_directories(gnuradio-audio
   PUBLIC
@@ -165,27 +165,3 @@ endif(WIN32)
 
 gr_library_foo(gnuradio-audio ${audio_deps})
 install(FILES ${gr_audio_confs} DESTINATION ${GR_PREFSDIR})
-
-if(ENABLE_STATIC_LIBS)
-  if(ENABLE_GR_CTRLPORT)
-    # Remove GR_CTRLPORT set this target's definitions.
-    # Makes sure we don't try to use ControlPort stuff in source files
-    get_directory_property(STATIC_DEFS COMPILE_DEFINITIONS)
-    list(REMOVE_ITEM STATIC_DEFS "GR_CTRLPORT")
-    set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS "${STATIC_DEFS}")
-
-    # readd it to the target since we removed it from the directory-wide list.
-    set_property(TARGET gnuradio-audio APPEND PROPERTY COMPILE_DEFINITIONS "GR_CTRLPORT")
-  endif()
-
-  add_library(gnuradio-audio_static STATIC ${gr_audio_sources})
-
-  if(NOT WIN32)
-    set_target_properties(gnuradio-audio_static
-      PROPERTIES OUTPUT_NAME gnuradio-audio)
-  endif()
-
-  install(TARGETS gnuradio-audio_static
-    ARCHIVE DESTINATION lib${LIB_SUFFIX} # .lib file
-    )
-endif()

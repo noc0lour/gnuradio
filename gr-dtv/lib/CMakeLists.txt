@@ -20,7 +20,7 @@
 ########################################################################
 # Setup library
 ########################################################################
-list(APPEND dtv_sources
+add_library(gnuradio-dtv
   atsc/atsc_deinterleaver_impl.cc
   atsc/atsc_depad_impl.cc
   atsc/atsc_derandomizer_impl.cc
@@ -80,13 +80,19 @@ list(APPEND dtv_sources
   catv/catv_trellis_enc_bb_impl.cc
 )
 
-list(APPEND dtv_libs
+target_link_libraries(gnuradio-dtv PUBLIC
     gnuradio-runtime
     gnuradio-analog
     gnuradio-filter
     gnuradio-fec
     ${GR_VOLK_LIB}
-)
+    )
+
+target_include_directories(gnuradio-dtv
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 
 include (CheckCCompilerFlag)
 if (MSVC)
@@ -116,7 +122,7 @@ if(SSE2_SUPPORTED)
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
         endif ()
     endif()
-    ADD_DEFINITIONS(-DDTV_SSE2)
+    target_compile_definitions(gnuradio-dtv PRIVATE -DDTV_SSE2)
 endif(SSE2_SUPPORTED)
 
 #Add Windows DLL resource file if using MSVC
@@ -128,18 +134,11 @@ if(MSVC)
         ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-dtv.rc
     @ONLY)
 
-    list(APPEND dtv_sources
+    target_sources(gnuradio-dtv PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-dtv.rc
     )
 endif(MSVC)
 
-add_library(gnuradio-dtv SHARED ${dtv_sources})
-target_link_libraries(gnuradio-dtv ${dtv_libs})
-target_include_directories(gnuradio-dtv
-  PUBLIC
-  $<INSTALL_INTERFACE:include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
-  PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  )
-GR_LIBRARY_FOO(gnuradio-dtv)
+if(BUILD_SHARED_LIBS)
+  GR_LIBRARY_FOO(gnuradio-dtv)
+endif()

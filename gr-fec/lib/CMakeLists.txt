@@ -23,7 +23,7 @@
 ########################################################################
 # Setup library
 ########################################################################
-add_library(gnuradio-fec SHARED
+add_library(gnuradio-fec
   generic_decoder.cc
   generic_encoder.cc
   decoder_impl.cc
@@ -74,9 +74,9 @@ target_include_directories(gnuradio-fec
 add_subdirectory(reed-solomon)
 
 target_sources(gnuradio-fec PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/viterbi/metrics.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/viterbi/tab.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/viterbi/viterbi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/viterbi/metrics.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/viterbi/tab.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/viterbi/viterbi.cc
   )
 
 #Add Windows DLL resource file if using MSVC
@@ -111,28 +111,6 @@ if(GSL_FOUND)
     )
 endif(GSL_FOUND)
 
-GR_LIBRARY_FOO(gnuradio-fec)
-
-if(ENABLE_STATIC_LIBS)
-  if(ENABLE_GR_CTRLPORT)
-    # Remove GR_CTRLPORT set this target's definitions.
-    # Makes sure we don't try to use ControlPort stuff in source files
-    GET_DIRECTORY_PROPERTY(STATIC_DEFS COMPILE_DEFINITIONS)
-    list(REMOVE_ITEM STATIC_DEFS "GR_CTRLPORT")
-    SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS "${STATIC_DEFS}")
-
-    # readd it to the target since we removed it from the directory-wide list.
-    SET_PROPERTY(TARGET gnuradio-fec APPEND PROPERTY COMPILE_DEFINITIONS "GR_CTRLPORT")
-  endif(ENABLE_GR_CTRLPORT)
-
-  add_library(gnuradio-fec_static STATIC ${gnuradio_fec_sources})
-
-  if(NOT WIN32)
-    set_target_properties(gnuradio-fec_static
-      PROPERTIES OUTPUT_NAME gnuradio-fec)
-  endif(NOT WIN32)
-
-  install(TARGETS gnuradio-fec_static
-    ARCHIVE DESTINATION lib${LIB_SUFFIX} # .lib file
-    )
-endif(ENABLE_STATIC_LIBS)
+if(BUILD_SHARED_LIBS)
+  GR_LIBRARY_FOO(gnuradio-fec)
+endif()

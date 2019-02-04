@@ -25,7 +25,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/ConfigChecks.cmake)
 ########################################################################
 # Setup library
 ########################################################################
-list(APPEND gr_blocks_sources
+add_library(gnuradio-blocks
     abs_blk_impl.cc
     add_blk_impl.cc
     add_const_v_impl.cc
@@ -179,12 +179,23 @@ list(APPEND gr_blocks_sources
     vector_to_streams_impl.cc
     wavfile_sink_impl.cc
     wavfile_source_impl.cc
-)
+    )
+
+target_link_libraries(gnuradio-blocks
+  gnuradio-runtime
+  ${GR_VOLK_LIB}
+  )
+
+target_include_directories(gnuradio-blocks
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
 
 set_source_files_properties(file_source_impl.cc PROPERTIES COMPILE_FLAGS -D_FILE_OFFSET_BITS=64)
 
 if(ENABLE_GR_CTRLPORT)
-list(APPEND blocks_ctrlport_sources
+target_sources(gnuradio-blocks PRIVATE
   ctrlport_probe_c_impl.cc
   ctrlport_probe2_c_impl.cc
   ctrlport_probe2_f_impl.cc
@@ -192,11 +203,7 @@ list(APPEND blocks_ctrlport_sources
   ctrlport_probe2_i_impl.cc
   ctrlport_probe2_b_impl.cc
 )
-
-list(APPEND gr_blocks_sources
-  ${blocks_ctrlport_sources}
-)
-endif(ENABLE_GR_CTRLPORT)
+endif()
 
 #Add Windows DLL resource file if using MSVC
 IF(MSVC)
@@ -207,58 +214,14 @@ IF(MSVC)
         ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-blocks.rc
     @ONLY)
 
-    list(APPEND gr_blocks_sources
+    target_sources(gnuradio-blocks PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-blocks.rc
     )
 ENDIF(MSVC)
 
-list(APPEND blocks_libs
-  gnuradio-runtime
-  ${GR_VOLK_LIB}
-)
-
-add_library(gnuradio-blocks SHARED ${gr_blocks_sources})
-
-target_link_libraries(gnuradio-blocks ${blocks_libs})
-target_include_directories(gnuradio-blocks
-  PUBLIC
-  $<INSTALL_INTERFACE:include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
-  )
-GR_LIBRARY_FOO(gnuradio-blocks)
-
-if(ENABLE_STATIC_LIBS)
-  # Remove controlport-specific source files from staticlibs build
-  if(ENABLE_GR_CTRLPORT)
-    if(ICE_FOUND)
-      list(REMOVE_ITEM gr_blocks_sources
-        ${blocks_ctrlport_sources}
-        )
-
-      # Remove GR_CTRLPORT set this target's definitions.
-      # Makes sure we don't try to use ControlPort stuff in source files
-      GET_DIRECTORY_PROPERTY(STATIC_DEFS COMPILE_DEFINITIONS)
-      list(REMOVE_ITEM STATIC_DEFS "GR_CTRLPORT")
-      SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS "${STATIC_DEFS}")
-
-      # readd it to the target since we removed it from the directory-wide list.
-      SET_PROPERTY(TARGET gnuradio-blocks APPEND PROPERTY COMPILE_DEFINITIONS "GR_CTRLPORT")
-    endif(ICE_FOUND)
-  endif(ENABLE_GR_CTRLPORT)
-
-  add_library(gnuradio-blocks_static STATIC ${gr_blocks_sources})
-
-  add_dependencies(gnuradio-blocks_static)
-
-  if(NOT WIN32)
-    set_target_properties(gnuradio-blocks_static
-      PROPERTIES OUTPUT_NAME gnuradio-blocks)
-  endif(NOT WIN32)
-
-  install(TARGETS gnuradio-blocks_static
-    ARCHIVE DESTINATION lib${LIB_SUFFIX} # .lib file
-    )
-endif(ENABLE_STATIC_LIBS)
+if(BUILD_SHARED_LIBS)
+  GR_LIBRARY_FOO(gnuradio-blocks)
+endif()
 
 ########################################################################
 # QA C++ Code for gr-blocks

@@ -20,7 +20,7 @@
 ########################################################################
 # Setup library
 ########################################################################
-list(APPEND fft_sources
+add_library(gnuradio-fft
   fft.cc
   fft_vcc_fftw.cc
   fft_vfc_fftw.cc
@@ -29,17 +29,24 @@ list(APPEND fft_sources
   window.cc
 )
 
-if(ENABLE_GR_CTRLPORT)
-list(APPEND fft_sources
-  ctrlport_probe_psd_impl.cc
-)
-endif(ENABLE_GR_CTRLPORT)
-
-list(APPEND fft_libs
+target_link_libraries(gnuradio-fft PUBLIC
   gnuradio-runtime
   fftw3f::fftw3f
   ${GR_VOLK_LIB}
 )
+
+target_include_directories(gnuradio-fft
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
+
+if(ENABLE_GR_CTRLPORT)
+target_sources(gnuradio-fft PRIVATE
+  ctrlport_probe_psd_impl.cc
+)
+endif(ENABLE_GR_CTRLPORT)
+
 
 #Add Windows DLL resource file if using MSVC
 if(MSVC)
@@ -50,45 +57,16 @@ if(MSVC)
         ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-fft.rc
     @ONLY)
 
-    list(APPEND fft_sources
+    target_sources(gnuradio-fft PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-fft.rc
     )
 endif(MSVC)
 
 if(FFTW3F_THREADS_LIBRARIES)
-    list(APPEND fft_libs ${FFTW3F_THREADS_LIBRARIES})
-    add_definitions("-DFFTW3F_THREADS")
+    target_link_libraries(gnruadio-fft PUBLIC ${FFTW3F_THREADS_LIBRARIES})
+    target_compile_definitions(gnuradio-fft PRIVATE "-DFFTW3F_THREADS")
 endif()
 
-add_library(gnuradio-fft SHARED ${fft_sources})
-target_link_libraries(gnuradio-fft ${fft_libs})
-target_include_directories(gnuradio-fft
-  PUBLIC
-  $<INSTALL_INTERFACE:include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
-  )
-GR_LIBRARY_FOO(gnuradio-fft FFTW3f)
-
-if(ENABLE_STATIC_LIBS)
-  if(ENABLE_GR_CTRLPORT)
-    # Remove GR_CTRLPORT set this target's definitions.
-    # Makes sure we don't try to use ControlPort stuff in source files
-    GET_DIRECTORY_PROPERTY(STATIC_DEFS COMPILE_DEFINITIONS)
-    list(REMOVE_ITEM STATIC_DEFS "GR_CTRLPORT")
-    SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS "${STATIC_DEFS}")
-
-    # readd it to the target since we removed it from the directory-wide list.
-    SET_PROPERTY(TARGET gnuradio-fft APPEND PROPERTY COMPILE_DEFINITIONS "GR_CTRLPORT")
-  endif(ENABLE_GR_CTRLPORT)
-
-  add_library(gnuradio-fft_static STATIC ${fft_sources})
-
-  if(NOT WIN32)
-    set_target_properties(gnuradio-fft_static
-      PROPERTIES OUTPUT_NAME gnuradio-fft)
-  endif(NOT WIN32)
-
-  install(TARGETS gnuradio-fft_static
-    ARCHIVE DESTINATION lib${LIB_SUFFIX} # .lib file
-    )
-endif(ENABLE_STATIC_LIBS)
+if(BUILD_SHARED_LIBS)
+  GR_LIBRARY_FOO(gnuradio-fft FFTW3f)
+endif()

@@ -20,7 +20,7 @@
 ########################################################################
 # Setup library
 ########################################################################
-add_library(gnuradio-vocoder SHARED
+add_library(gnuradio-vocoder
     alaw_decode_bs_impl.cc
     alaw_encode_sb_impl.cc
     cvsd_decode_bs_impl.cc
@@ -99,30 +99,6 @@ if(LIBGSM_LIBRARIES)
   list(APPEND external_deps GSM)
 endif(LIBGSM_LIBRARIES)
 
-
-GR_LIBRARY_FOO(gnuradio-vocoder ${external_deps})
-
-
-if(ENABLE_STATIC_LIBS)
-  if(ENABLE_GR_CTRLPORT)
-    # Remove GR_CTRLPORT set this target's definitions.
-    # Makes sure we don't try to use ControlPort stuff in source files
-    GET_DIRECTORY_PROPERTY(STATIC_DEFS COMPILE_DEFINITIONS)
-    list(REMOVE_ITEM STATIC_DEFS "GR_CTRLPORT")
-    SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS "${STATIC_DEFS}")
-
-    # readd it to the target since we removed it from the directory-wide list.
-    SET_PROPERTY(TARGET gnuradio-vocoder APPEND PROPERTY COMPILE_DEFINITIONS "GR_CTRLPORT")
-  endif(ENABLE_GR_CTRLPORT)
-
-  add_library(gnuradio-vocoder_static STATIC ${gr_vocoder_sources})
-
-  if(NOT WIN32)
-    set_target_properties(gnuradio-vocoder_static
-      PROPERTIES OUTPUT_NAME gnuradio-vocoder)
-  endif(NOT WIN32)
-
-  install(TARGETS gnuradio-vocoder_static
-    ARCHIVE DESTINATION lib${LIB_SUFFIX} # .lib file
-    )
-endif(ENABLE_STATIC_LIBS)
+if (BUILD_SHARED_LIBS)
+  GR_LIBRARY_FOO(gnuradio-vocoder ${external_deps})
+endif()

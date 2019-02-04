@@ -30,6 +30,7 @@ endif(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 cmake_minimum_required(VERSION 3.5.1)
 project(gnuradio CXX C)
 enable_testing()
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
 # Make sure our local CMake Modules path comes first
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
@@ -298,9 +299,6 @@ else(ENABLE_PERFORMANCE_COUNTERS)
   SET(GR_PERFORMANCE_COUNTERS False)
   message(STATUS "NO PERF COUNTERS")
 endif(ENABLE_PERFORMANCE_COUNTERS)
-
-OPTION(ENABLE_STATIC_LIBS "Enable building of static libraries" OFF)
-message(STATUS "Building Static Libraries: ${ENABLE_STATIC_LIBS}")
 
 ########################################################################
 # Variables replaced when configuring the package config files

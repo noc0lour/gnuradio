@@ -1,4 +1,4 @@
-# Copyright 2011-2013 Free Software Foundation, Inc.
+# Copyright 2011-2013,2019 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -20,12 +20,25 @@
 ########################################################################
 # Setup library
 ########################################################################
-list(APPEND gr_uhd_sources
+add_library(gnuradio-uhd
     usrp_block_impl.cc
     usrp_source_impl.cc
     usrp_sink_impl.cc
     amsg_source_impl.cc
 )
+
+target_link_libraries(gnuradio-uhd
+  gnuradio-runtime
+  UHD::UHD
+)
+
+target_include_directories(gnuradio-uhd
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  )
+
+
 
 #Add Windows DLL resource file if using MSVC
 if(MSVC)
@@ -36,42 +49,11 @@ if(MSVC)
         ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-uhd.rc
     @ONLY)
 
-    list(APPEND gr_uhd_sources
+    target_sources(gnuradio-uhd PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-uhd.rc
     )
 endif(MSVC)
 
-list(APPEND uhd_libs
-  gnuradio-runtime
-  UHD::UHD
-)
-
-add_library(gnuradio-uhd SHARED ${gr_uhd_sources})
-target_link_libraries(gnuradio-uhd ${uhd_libs})
-target_include_directories(gnuradio-uhd
-  PUBLIC
-  $<INSTALL_INTERFACE:include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
-  )
-GR_LIBRARY_FOO(gnuradio-uhd UHD)
-
-########################################################################
-# Build static libraries if enabled
-########################################################################
-if(ENABLE_STATIC_LIBS)
-  if(UHD_VERSION VERSION_GREATER "3.8.1")
-
-    add_library(gnuradio-uhd_static STATIC ${gr_uhd_sources})
-
-    if(NOT WIN32)
-      set_target_properties(gnuradio-uhd_static
-        PROPERTIES OUTPUT_NAME gnuradio-uhd)
-    endif(NOT WIN32)
-
-    install(TARGETS gnuradio-uhd_static
-      ARCHIVE DESTINATION lib${LIB_SUFFIX} # .lib file
-    )
-  else(UHD_VERSION VERSION_GREATER "3.8.1")
-    message(STATUS "Not building gr-uhd static library; requires UHD >= 3.8.2")
-  endif(UHD_VERSION VERSION_GREATER "3.8.1")
-endif(ENABLE_STATIC_LIBS)
+if(BUILD_SHARED_LIBS)
+  GR_LIBRARY_FOO(gnuradio-uhd UHD)
+endif()
