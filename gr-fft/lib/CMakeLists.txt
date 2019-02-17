@@ -62,11 +62,6 @@ if(MSVC)
     )
 endif(MSVC)
 
-if(FFTW3F_THREADS_LIBRARIES)
-    target_link_libraries(gnruadio-fft PUBLIC ${FFTW3F_THREADS_LIBRARIES})
-    target_compile_definitions(gnuradio-fft PRIVATE "-DFFTW3F_THREADS")
-endif()
-
 if(BUILD_SHARED_LIBS)
   GR_LIBRARY_FOO(gnuradio-fft FFTW3f)
 endif()

@@ -46,5 +46,13 @@ if (FFTW3f_FOUND AND NOT TARGET fftw3f::fftw3f)
   set_target_properties(fftw3f::fftw3f PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${FFTW3f_INCLUDE_DIRS}"
     INTERFACE_LINK_LIBRARIES "${FFTW3f_LIBRARIES}"
-  )
+    )
+  if (FFTW3f_THREADS_LIBRARIES)
+    set_property(TARGET fftw3f::fftw3f APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+      "${FFTW3f_THREADS_LIBRARIES}"
+      )
+    set_target_properties(fftw3f::fftw3f PROPERTIES
+      INTERFACE_COMPILE_DEFINITIONS "FFTW3F_THREADS"
+      )
+  endif()
 endif()
