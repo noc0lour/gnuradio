@@ -182,7 +182,7 @@ as well as ``SWIG``:
 #]=======================================================================]
 
 
-cmake_policy (VERSION 3.5)
+cmake_policy (VERSION 3.8)
 
 set(SWIG_CXX_EXTENSION "cxx")
 set(SWIG_EXTRA_LIBRARIES "")
