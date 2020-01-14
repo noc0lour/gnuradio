@@ -25,13 +25,10 @@
 #endif
 
 #include <gnuradio/blocks/control_loop.h>
-#include <gnuradio/math.h>
 #include <stdexcept>
 
 namespace gr {
 namespace blocks {
-
-#define M_TWOPI (2.0f * GR_M_PI)
 
 control_loop::control_loop(float loop_bw, float max_freq, float min_freq)
     : d_phase(0), d_freq(0), d_max_freq(max_freq), d_min_freq(min_freq)
@@ -50,28 +47,6 @@ void control_loop::update_gains()
     float denom = (1.0 + 2.0 * d_damping * d_loop_bw + d_loop_bw * d_loop_bw);
     d_alpha = (4 * d_damping * d_loop_bw) / denom;
     d_beta = (4 * d_loop_bw * d_loop_bw) / denom;
-}
-
-void control_loop::advance_loop(float error)
-{
-    d_freq = d_freq + d_beta * error;
-    d_phase = d_phase + d_freq + d_alpha * error;
-}
-
-void control_loop::phase_wrap()
-{
-    while (d_phase > M_TWOPI)
-        d_phase -= M_TWOPI;
-    while (d_phase < -M_TWOPI)
-        d_phase += M_TWOPI;
-}
-
-void control_loop::frequency_limit()
-{
-    if (d_freq > d_max_freq)
-        d_freq = d_max_freq;
-    else if (d_freq < d_min_freq)
-        d_freq = d_min_freq;
 }
 
 /*******************************************************************
@@ -127,10 +102,10 @@ void control_loop::set_frequency(float freq)
 void control_loop::set_phase(float phase)
 {
     d_phase = phase;
-    while (d_phase > M_TWOPI)
-        d_phase -= M_TWOPI;
-    while (d_phase < -M_TWOPI)
-        d_phase += M_TWOPI;
+    while (d_phase > GR_M_TWOPI)
+        d_phase -= GR_M_TWOPI;
+    while (d_phase < -GR_M_TWOPI)
+        d_phase += GR_M_TWOPI;
 }
 
 void control_loop::set_max_freq(float freq) { d_max_freq = freq; }

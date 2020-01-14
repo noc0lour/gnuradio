@@ -43,8 +43,10 @@
 #define GR_M_LOG2E 1.4426950408889634074          /* log_2 e */
 #define GR_M_PI 3.14159265358979323846            /* pi */
 #define GR_M_PI_4 0.78539816339744830961566084582 /* pi/4 */
-#define GR_M_TWOPI (2 * GR_M_PI)                  /* 2*pi */
+#define GR_M_TWOPI 6.28318530717958647692         /* 2*pi */
 #define GR_M_SQRT2 1.41421356237309504880         /* sqrt(2) */
+#define GR_M_ONE_OVER_2PI 0.15915494309189533577  /* 1 / (2*pi) */
+#define GR_M_MINUS_TWO_PI -6.28318530717958647692 /* - 2*pi */
 
 
 namespace gr {
@@ -74,10 +76,7 @@ static inline float fast_atan2f(gr_complex z) { return fast_atan2f(z.imag(), z.r
 /* This bounds x by +/- clip without a branch */
 static inline float branchless_clip(float x, float clip)
 {
-    float x1 = fabsf(x + clip);
-    float x2 = fabsf(x - clip);
-    x1 -= x2;
-    return 0.5 * x1;
+    return 0.5 * (std::abs(x + clip) - std::abs(x - clip));
 }
 
 static inline float clip(float x, float clip)

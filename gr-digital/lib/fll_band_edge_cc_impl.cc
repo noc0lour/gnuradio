@@ -32,8 +32,6 @@
 namespace gr {
 namespace digital {
 
-#define M_TWOPI (2 * M_PI)
-
 float sinc(float x)
 {
     if (x == 0)
@@ -61,7 +59,7 @@ fll_band_edge_cc_impl::fll_band_edge_cc_impl(float samps_per_sym,
                  io_signature::make(1, 1, sizeof(gr_complex)),
                  io_signature::makev(1, 4, iosig)),
       blocks::control_loop(
-          bandwidth, M_TWOPI * (2.0 / samps_per_sym), -M_TWOPI * (2.0 / samps_per_sym)),
+          bandwidth, GR_M_TWOPI * (2.0 / samps_per_sym), -GR_M_TWOPI * (2.0 / samps_per_sym)),
       d_updated(false)
 {
     // Initialize samples per symbol
@@ -97,8 +95,8 @@ void fll_band_edge_cc_impl::set_samples_per_symbol(float sps)
         throw std::out_of_range("fll_band_edge_cc: invalid number of sps. Must be > 0.");
     }
     d_sps = sps;
-    set_max_freq(M_TWOPI * (2.0 / sps));
-    set_min_freq(-M_TWOPI * (2.0 / sps));
+    set_max_freq(GR_M_TWOPI * (2.0 / sps));
+    set_min_freq(-GR_M_TWOPI * (2.0 / sps));
     design_filter(d_sps, d_rolloff, d_filter_size);
 }
 
@@ -163,8 +161,8 @@ void fll_band_edge_cc_impl::design_filter(float samps_per_sym,
 
         float k = (-N + (int)i) / (2.0 * samps_per_sym);
 
-        gr_complex t1 = tap * gr_expj(-M_TWOPI * (1 + rolloff) * k);
-        gr_complex t2 = tap * gr_expj(M_TWOPI * (1 + rolloff) * k);
+        gr_complex t1 = tap * gr_expj(-GR_M_TWOPI * (1 + rolloff) * k);
+        gr_complex t2 = tap * gr_expj(GR_M_TWOPI * (1 + rolloff) * k);
 
         d_taps_lower[filter_size - i - 1] = t1;
         d_taps_upper[filter_size - i - 1] = t2;
