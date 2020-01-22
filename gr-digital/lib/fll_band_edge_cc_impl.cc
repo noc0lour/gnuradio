@@ -58,8 +58,9 @@ fll_band_edge_cc_impl::fll_band_edge_cc_impl(float samps_per_sym,
     : sync_block("fll_band_edge_cc",
                  io_signature::make(1, 1, sizeof(gr_complex)),
                  io_signature::makev(1, 4, iosig)),
-      blocks::control_loop(
-          bandwidth, GR_M_TWOPI * (2.0 / samps_per_sym), -GR_M_TWOPI * (2.0 / samps_per_sym)),
+      blocks::control_loop(bandwidth,
+                           GR_M_TWOPI * (2.0 / samps_per_sym),
+                           -GR_M_TWOPI * (2.0 / samps_per_sym)),
       d_updated(false)
 {
     // Initialize samples per symbol

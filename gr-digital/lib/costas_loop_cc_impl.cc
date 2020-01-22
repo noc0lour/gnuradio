@@ -93,8 +93,6 @@ int costas_loop_cc_impl::work(int noutput_items,
     else if (error_optr)
         hasAdditionalOutputs = true;
 
-    float i_r, i_i, n_r, n_i, o_r, o_i;
-
     for (int i = 0; i < noutput_items; i++) {
         if (!tags.empty()) {
             if (tags[0].offset - nitems_read(0) == (size_t)i) {
@@ -103,23 +101,12 @@ int costas_loop_cc_impl::work(int noutput_items,
             }
         }
 
-        // EXPENSIVE LINES.  Below was 50% faster than gr_expj (30%) and gr_complex (20%)
-        // multiplication nco_out = gr_expj(-d_phase);
-        // optr[i] = iptr[i] * nco_out;
-        n_i = sinf(-d_phase);
-        n_r = cosf(-d_phase);
+        const gr_complex nco_out = gr_expj(-d_phase);
 
-        // optr[i] = iptr[i] * nco_out;
-        i_r = iptr[i].real();
-        i_i = iptr[i].imag();
-        o_r = (i_r * n_r) - (i_i * n_i);
-        o_i = (i_r * n_i) + (i_i * n_r);
+        fast_cc_multiply(optr[i], iptr[i], nco_out);
 
-        optr[i].real(o_r);
-        optr[i].imag(o_i);
-
-        // EXPENSIVE LINE, switch was 20% faster in testing.
-        // d_error = phase_detector_2(optr[i]);
+        // EXPENSIVE LINE with function pointer, switch was 20% faster in testing.  Left
+        // in for reference. d_error = phase_detector_2(optr[i]);
         switch (d_order) {
         case 2:
             if (d_use_snr)

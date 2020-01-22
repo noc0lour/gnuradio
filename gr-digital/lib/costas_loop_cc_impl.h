@@ -37,6 +37,21 @@ private:
     float d_noise;
     bool d_use_snr;
 
+    void fast_cc_multiply(gr_complex& out, const gr_complex cc1, const gr_complex cc2)
+    {
+        // The built-in complex.h multiply has significant NaN/INF checking that
+        // considerably slows down performance.  While on some compilers the
+        // -fcx-limit-range flag can be used, this fast function makes the math consistent
+        // in terms of performance for the Costas loop.
+        float o_r, o_i;
+
+        o_r = (cc1.real() * cc2.real()) - (cc1.imag() * cc2.imag());
+        o_i = (cc1.real() * cc2.imag()) + (cc1.imag() * cc2.real());
+
+        out.real(o_r);
+        out.imag(o_i);
+    }
+
     /*! \brief the phase detector circuit for 8th-order PSK loops.
      *
      *  \param sample complex sample
