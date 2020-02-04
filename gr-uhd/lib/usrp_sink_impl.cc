@@ -51,6 +51,7 @@ usrp_sink_impl::usrp_sink_impl(const ::uhd::device_addr_t& device_addr,
     message_port_register_out(ASYNC_MSGS_PORT_KEY);
     _async_event_thread = gr::thread::thread([this]() { this->async_event_loop(); });
     _sample_rate = get_samp_rate();
+    message_port_register_out(pmt::mp("token_out"));
 }
 
 usrp_sink_impl::~usrp_sink_impl()
@@ -461,6 +462,13 @@ void usrp_sink_impl::tag_work(int& ninput_items)
             break;
         }
 
+        /* Low Latency Tag Check! */
+        else if(pmt::equal(key, TOKEN_KEY)) {
+            //return msg to source to signify receival of data
+            //std::cout << "Output Token! " << std::endl;
+            message_port_pub(pmt::mp("token_out"), pmt::PMT_NIL);
+        }
+        
         /* I. Tags that can only be on the first sample of a burst
          *
          * This includes:

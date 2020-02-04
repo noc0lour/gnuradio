@@ -127,6 +127,9 @@ outputs:
 -   domain: message
     id: async_msgs
     optional: true
+-   domain: message
+    id: token_out
+    optional: true
 % endif
 
 templates:
