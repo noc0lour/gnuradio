@@ -48,6 +48,10 @@ public:
 
 private:
     bool d_req_pending;
+    int d_tokens_inflight;
+    gr::tag_t d_token_tag;
+
+    void process_msg(pmt::pmt_t msg);
 };
 
 } // namespace zeromq

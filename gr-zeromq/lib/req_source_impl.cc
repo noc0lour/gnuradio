@@ -44,11 +44,16 @@ req_source_impl::req_source_impl(
                      gr::io_signature::make(0, 0, 0),
                      gr::io_signature::make(1, 1, itemsize * vlen)),
       base_source_impl(ZMQ_REQ, itemsize, vlen, address, timeout, pass_tags, hwm),
-      d_req_pending(false)
+      d_req_pending(false),
+      d_tokens_inflight(0)
 {
-    /* All is delegated */
+    message_port_register_in(pmt::mp("token_in"));
+    set_msg_handler(pmt::mp("token_in"), boost::bind(&req_source_impl::process_msg, this, _1));
+    this->d_token_tag.key = pmt::intern("token_tag");
 }
-
+void req_source_impl::process_msg(pmt::pmt_t msg){
+    this->d_tokens_inflight--;
+}
 int req_source_impl::work(int noutput_items,
                           gr_vector_const_void_star& input_items,
                           gr_vector_void_star& output_items)
@@ -59,48 +64,56 @@ int req_source_impl::work(int noutput_items,
     bool first = true;
     int done = 0;
 
-    /* Process as much as we can */
-    while (1) {
-        if (has_pending()) {
-            /* Flush anything pending */
-            done += flush_pending(
-                out + (done * d_vsize), noutput_items - done, nitems_written(0) + done);
+    if(this->d_tokens_inflight < 100){
+        /* Process as much as we can */
+        while (1) {
+            if (has_pending()) {
+                /* Flush anything pending */
+                done += flush_pending(
+                    out + (done * d_vsize), noutput_items - done, nitems_written(0) + done);
 
-            /* No more space ? */
-            if (done == noutput_items)
-                break;
-        } else {
-            /* Send request if needed */
-            if (!d_req_pending) {
-                /* The REP/REQ pattern state machine guarantees we can send at this point
-                 */
-                uint32_t req_len = noutput_items - done;
-                zmq::message_t request(sizeof(uint32_t));
-                memcpy((void*)request.data(), &req_len, sizeof(uint32_t));
-#if USE_NEW_CPPZMQ_SEND_RECV
-                d_socket->send(request, zmq::send_flags::none);
-#else
-                d_socket->send(request);
-#endif
+                /* No more space ? */
+                if (done == noutput_items)
+                    break;
+            } else {
+                /* Send request if needed */
+                if (!d_req_pending) {
+                    /* The REP/REQ pattern state machine guarantees we can send at this point
+                    */
+                    uint32_t req_len = noutput_items - done;
+                    zmq::message_t request(sizeof(uint32_t));
+                    memcpy((void*)request.data(), &req_len, sizeof(uint32_t));
+    #if USE_NEW_CPPZMQ_SEND_RECV
+                    d_socket->send(request, zmq::send_flags::none);
+    #else
+                    d_socket->send(request);
+    #endif
 
-                d_req_pending = true;
+                    d_req_pending = true;
+                }
+
+                /* Try to get the next message */
+                if (!load_message(first))
+                    break; /* No message, we're done for now */
+
+                /* Got response */
+                d_req_pending = false;
+
+                /* Not the first anymore */
+                first = false;
             }
-
-            /* Try to get the next message */
-            if (!load_message(first))
-                break; /* No message, we're done for now */
-
-            /* Got response */
-            d_req_pending = false;
-
-            /* Not the first anymore */
-            first = false;
         }
+        if(done > 0){
+            d_token_tag.offset = nitems_written(0);
+            d_token_tag.value = pmt::from_long(this->d_tokens_inflight);
+            add_item_tag(0,d_token_tag);
+            this->d_tokens_inflight++;
+        }
+        return done;
+    }else{
+        boost::this_thread::sleep(boost::posix_time::microseconds(long(100)));
+        return 0;
     }
-
-    return done;
-
-    return 0;
 }
 
 } /* namespace zeromq */
