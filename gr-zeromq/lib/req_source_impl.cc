@@ -32,27 +32,28 @@ namespace gr {
 namespace zeromq {
 
 req_source::sptr req_source::make(
-    size_t itemsize, size_t vlen, char* address, int timeout, bool pass_tags, int hwm)
+    size_t itemsize, size_t vlen, char* address, int timeout, bool pass_tags, int hwm, int max_inflowChart)
 {
     return gnuradio::get_initial_sptr(
-        new req_source_impl(itemsize, vlen, address, timeout, pass_tags, hwm));
+        new req_source_impl(itemsize, vlen, address, timeout, pass_tags, hwm, max_inflowChart));
 }
 
 req_source_impl::req_source_impl(
-    size_t itemsize, size_t vlen, char* address, int timeout, bool pass_tags, int hwm)
+    size_t itemsize, size_t vlen, char* address, int timeout, bool pass_tags, int hwm, int max_inflowChart)
     : gr::sync_block("req_source",
                      gr::io_signature::make(0, 0, 0),
                      gr::io_signature::make(1, 1, itemsize * vlen)),
       base_source_impl(ZMQ_REQ, itemsize, vlen, address, timeout, pass_tags, hwm),
       d_req_pending(false),
-      d_tokens_inflight(0)
+      d_tokens_inflowChart(0),
+      d_max_inflowChart(max_inflowChart)
 {
     message_port_register_in(pmt::mp("token_in"));
     set_msg_handler(pmt::mp("token_in"), boost::bind(&req_source_impl::process_msg, this, _1));
     this->d_token_tag.key = pmt::intern("token_tag");
 }
 void req_source_impl::process_msg(pmt::pmt_t msg){
-    this->d_tokens_inflight--;
+    this->d_tokens_inflowChart--;
 }
 int req_source_impl::work(int noutput_items,
                           gr_vector_const_void_star& input_items,
@@ -64,7 +65,7 @@ int req_source_impl::work(int noutput_items,
     bool first = true;
     int done = 0;
 
-    if(this->d_tokens_inflight < 100){
+    if(this->d_tokens_inflowChart < d_max_inflowChart){
         /* Process as much as we can */
         while (1) {
             if (has_pending()) {
@@ -105,9 +106,9 @@ int req_source_impl::work(int noutput_items,
         }
         if(done > 0){
             d_token_tag.offset = nitems_written(0);
-            d_token_tag.value = pmt::from_long(this->d_tokens_inflight);
+            d_token_tag.value = pmt::from_long(this->d_tokens_inflowChart);
             add_item_tag(0,d_token_tag);
-            this->d_tokens_inflight++;
+            this->d_tokens_inflowChart++;
         }
         return done;
     }else{

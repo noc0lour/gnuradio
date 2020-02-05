@@ -57,7 +57,8 @@ public:
                      char* address,
                      int timeout = 100,
                      bool pass_tags = false,
-                     int hwm = -1);
+                     int hwm = -1,
+                     int max_inflowChart = 500);
 
     /*!
      * \brief Return a std::string of ZMQ_LAST_ENDPOINT from the underlying ZMQ socket.

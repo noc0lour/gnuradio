@@ -38,7 +38,8 @@ public:
                     char* address,
                     int timeout,
                     bool pass_tags,
-                    int hwm);
+                    int hwm,
+                    int max_inflowChart);
 
     int work(int noutput_items,
              gr_vector_const_void_star& input_items,
@@ -48,7 +49,8 @@ public:
 
 private:
     bool d_req_pending;
-    int d_tokens_inflight;
+    int d_tokens_inflowChart;
+    int d_max_inflowChart;
     gr::tag_t d_token_tag;
 
     void process_msg(pmt::pmt_t msg);

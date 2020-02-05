@@ -29,6 +29,10 @@ parameters:
     default: 'False'
     options: ['True', 'False']
     option_labels: ['Yes', 'No']
+-   id: maxInFlow
+    label: Max in flow
+    dtype: int
+    default: '100'
 -   id: hwm
     label: High Watermark
     dtype: int
@@ -48,6 +52,6 @@ outputs:
 templates:
     imports: from gnuradio import zeromq
     make: zeromq.req_source(${type.itemsize}, ${vlen}, ${address}, ${timeout}, ${pass_tags},
-        ${hwm})
+        ${hwm}, ${maxInFlow})
 
 file_format: 1
