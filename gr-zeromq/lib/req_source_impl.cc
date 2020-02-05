@@ -27,6 +27,7 @@
 #include "req_source_impl.h"
 #include "tag_headers.h"
 #include <gnuradio/io_signature.h>
+#include <iostream>
 
 namespace gr {
 namespace zeromq {
@@ -46,11 +47,17 @@ req_source_impl::req_source_impl(
       base_source_impl(ZMQ_REQ, itemsize, vlen, address, timeout, pass_tags, hwm),
       d_req_pending(false),
       d_tokens_inflowChart(0),
+      d_init_max_inflowChart(max_inflowChart),
       d_max_inflowChart(max_inflowChart)
 {
     message_port_register_in(pmt::mp("token_in"));
     set_msg_handler(pmt::mp("token_in"), boost::bind(&req_source_impl::process_msg, this, _1));
     this->d_token_tag.key = pmt::intern("token_tag");
+    d_init_max_inflowChart = max_inflowChart;
+    if(max_inflowChart == -1){
+        d_max_inflowChart = 1;
+        std::cout << "Latency on AutoMode! " << std::endl;
+    }
 }
 void req_source_impl::process_msg(pmt::pmt_t msg){
     this->d_tokens_inflowChart--;
@@ -66,6 +73,10 @@ int req_source_impl::work(int noutput_items,
     int done = 0;
 
     if(this->d_tokens_inflowChart < d_max_inflowChart){
+        /* Check if the producer is underrunning the consumer (if max_flow is on ' auto' )*/
+        if(d_init_max_inflowChart == -1 && d_tokens_inflowChart == 0){
+            d_max_inflowChart++;
+        }
         /* Process as much as we can */
         while (1) {
             if (has_pending()) {

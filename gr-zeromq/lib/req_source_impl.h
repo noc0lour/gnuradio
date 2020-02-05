@@ -51,6 +51,7 @@ private:
     bool d_req_pending;
     int d_tokens_inflowChart;
     int d_max_inflowChart;
+    int d_init_max_inflowChart;
     gr::tag_t d_token_tag;
 
     void process_msg(pmt::pmt_t msg);
