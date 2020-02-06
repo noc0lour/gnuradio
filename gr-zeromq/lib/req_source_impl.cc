@@ -54,6 +54,11 @@ req_source_impl::req_source_impl(
     set_msg_handler(pmt::mp("token_in"), boost::bind(&req_source_impl::process_msg, this, _1));
     this->d_token_tag.key = pmt::intern("token_tag");
     d_init_max_inflowChart = max_inflowChart;
+    if(max_inflowChart == 0){
+        d_control_max_inflowChart = true;
+    }else{
+        d_control_max_inflowChart = false;
+    }
     if(max_inflowChart == -1){
         d_max_inflowChart = 1;
         std::cout << "Latency on AutoMode! " << std::endl;
@@ -72,10 +77,14 @@ int req_source_impl::work(int noutput_items,
     bool first = true;
     int done = 0;
 
-    if(this->d_tokens_inflowChart < d_max_inflowChart){
+    if(this->d_tokens_inflowChart < d_max_inflowChart || d_control_max_inflowChart == false){
         /* Check if the producer is underrunning the consumer (if max_flow is on ' auto' )*/
-        if(d_init_max_inflowChart == -1 && d_tokens_inflowChart == 0){
+        if(d_init_max_inflowChart == -1 && d_tokens_inflowChart == 0 && d_control_max_inflowChart == true){ 
+            //al data produced has been consumed, counter is at zero
+            //so increase amount of produced data in-order to avoid under-runs. (consumer must always have daya available)
             d_max_inflowChart++;
+            
+            //note. think about dynamically lowering this number, in order to keep minimizing latency
         }
         /* Process as much as we can */
         while (1) {
@@ -83,7 +92,7 @@ int req_source_impl::work(int noutput_items,
                 /* Flush anything pending */
                 done += flush_pending(
                     out + (done * d_vsize), noutput_items - done, nitems_written(0) + done);
-
+ 
                 /* No more space ? */
                 if (done == noutput_items)
                     break;
@@ -115,7 +124,7 @@ int req_source_impl::work(int noutput_items,
                 first = false;
             }
         }
-        if(done > 0){
+        if(done > 0 && d_control_max_inflowChart == true){
             d_token_tag.offset = nitems_written(0);
             d_token_tag.value = pmt::from_long(this->d_tokens_inflowChart);
             add_item_tag(0,d_token_tag);

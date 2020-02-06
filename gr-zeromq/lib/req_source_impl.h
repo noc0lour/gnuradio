@@ -52,6 +52,7 @@ private:
     int d_tokens_inflowChart;
     int d_max_inflowChart;
     int d_init_max_inflowChart;
+    bool d_control_max_inflowChart;
     gr::tag_t d_token_tag;
 
     void process_msg(pmt::pmt_t msg);

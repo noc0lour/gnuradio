@@ -10,6 +10,7 @@ parameters:
 outputs:
 -   domain: stream
     dtype: msg
+    optional: true
 
 templates:
     imports: from gnuradio import uhd
