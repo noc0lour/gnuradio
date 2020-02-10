@@ -55,9 +55,11 @@ req_source_impl::req_source_impl(
     this->d_token_tag.key = pmt::intern("token_tag");
     d_init_max_inflowChart = max_inflowChart;
     if(max_inflowChart == 0){
-        d_control_max_inflowChart = true;
-    }else{
+        std::cout << "Latency control Disabled! " << std::endl;
         d_control_max_inflowChart = false;
+    }else{
+        std::cout << "Latency control Enabled! " << std::endl;
+        d_control_max_inflowChart = true;
     }
     if(max_inflowChart == -1){
         d_max_inflowChart = 1;
