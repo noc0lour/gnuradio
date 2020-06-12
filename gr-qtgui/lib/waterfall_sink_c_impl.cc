@@ -83,6 +83,7 @@ waterfall_sink_c_impl::waterfall_sink_c_impl(int fftsize,
     d_argv[0] = '\0';
 
     d_main_gui = NULL;
+    this->set_output_multiple(fftsize);
 
     // Perform fftshift operation;
     // this is usually desired when plotting
@@ -163,7 +164,7 @@ void waterfall_sink_c_impl::forecast(int noutput_items,
 {
     unsigned int ninputs = ninput_items_required.size();
     for (unsigned int i = 0; i < ninputs; i++) {
-        ninput_items_required[i] = std::min(d_fftsize, 8191);
+        ninput_items_required[i] = d_fftsize;
     }
 }
 
