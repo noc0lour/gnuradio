@@ -51,7 +51,7 @@ req_source_impl::req_source_impl(
       d_max_inflowChart(max_inflowChart)
 {
     message_port_register_in(pmt::mp("token_in"));
-    set_msg_handler(pmt::mp("token_in"), boost::bind(&req_source_impl::process_msg, this, _1));
+    set_msg_handler(pmt::mp("token_in"), boost::bind(&req_source_impl::process_msg, this, boost::placeholders::_1));
     this->d_token_tag.key = pmt::intern("token_tag");
     d_init_max_inflowChart = max_inflowChart;
     if(max_inflowChart == 0){
